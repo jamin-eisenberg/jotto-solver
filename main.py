@@ -45,3 +45,20 @@ def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
                              f"'{guess}' violates this. \n{guesses.keys()}\n{allwords}")
 
     return allwords, guesses
+
+# converts a number from 0 to 25 to a letter from 'a' to 'z'
+def get_char_from_num(n):
+    if 0 <= n <= 25:
+        return chr(n + 97)
+    raise ValueError("Can only convert numbers between 0 and 25.")
+
+# converts a letter from 'a' to 'z' to a number from 0 to 25
+def get_num_from_char(ch):
+    n = ord(ch) - 97
+    if 0 <= n <= 25:
+        return n
+    raise ValueError("Can only convert letters between 'a' and 'z'.")
+
+if __name__ == '__main__':
+
+    secret_word = []
