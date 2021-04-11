@@ -11,25 +11,25 @@ word-holder discloses the length of their word to the guesser. The guesser then 
 of English words of the given length. The word-holder responds to each guess with a number corresponding
 to how many letters the guessed word has in common with their word. For example:
 
-Word-holder: 4 (thinking of "dogs")
-Guesser: have
-Word-holder: 0
-Guesser: slip
-Word-holder: 1
-Guesser: coup
-Word-holder: 1
-Guesser: sows
-Word-holder: 2 (one of the "s"s lines up with the "s" in "dogs", and the "o" lines up)
-Guesser: suds
-Word-holder: 2
-Guesser: dost
-Word-holder: 3
-Guesser: rods
-Word-holder: 3
-Guesser: dons
-Word-holder: 3
-Guesser: dogs
-Word-holder: You got it. Good job, friend!
+Word-holder: 4 (thinking of "dogs")  
+Guesser: have  
+Word-holder: 0  
+Guesser: slip  
+Word-holder: 1  
+Guesser: coup  
+Word-holder: 1  
+Guesser: sows  
+Word-holder: 2 (one of the "s"s lines up with the "s" in "dogs", and the "o" lines up)  
+Guesser: suds  
+Word-holder: 2  
+Guesser: dost  
+Word-holder: 3  
+Guesser: rods  
+Word-holder: 3  
+Guesser: dons  
+Word-holder: 3  
+Guesser: dogs  
+Word-holder: You got it. Good job, friend!  
 
 Given a guess history like a subset of the example above, the end result of our program will be a boolean
 that represents whether our word list contains a word that "passes" all of the parts of the history. For
