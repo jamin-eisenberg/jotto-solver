@@ -58,7 +58,25 @@ def get_num_from_char(ch):
     if 0 <= n <= 25:
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
+    
+#checks if the given word is all lower case and only contains letters from a to z
+def lowerCaseAZ(w):
+    return w.islower() and w.isalpha()
+
+#checks to see how many matches there are between the guess and the answer, regardless
+#  of position, in O(n^2) time
+def matchNumber(guess, answer):
+    correctLetters = 0
+    guess = guess.casefold()
+    tempAnswer = answer.casefold()
+    for guessL in guess:
+        if guessL in tempAnswer:
+            tempAnswer = tempAnswer.replace(guessL, "", 1)
+            correctLetters += 1
+    return correctLetters
 
 if __name__ == '__main__':
 
     secret_word = []
+    
+
