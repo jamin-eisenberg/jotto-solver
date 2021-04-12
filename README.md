@@ -1,7 +1,7 @@
 # CS2800Final
 SMT solver for Jotto
 
-For our project, we'd like to write a Java program to convert a game state of Jotto into a boolean 
+For our project, we'd like to write a Python program to convert a game state of Jotto into a boolean 
 satisfiability problem, the solution of which will tell us whether there is a word that fits the 
 restrictions imposed by previous guesses.
 
