@@ -78,5 +78,3 @@ if __name__ == '__main__':
 
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
-
-    secret_word = []    
