@@ -4,7 +4,9 @@ from main import *
 class Tester(unittest.TestCase):
     def test_get_allwords_and_guesses(self):
         self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "example.txt", 4),
-                        (sorted(['have', 'slip', 'coup', 'sows', 'suds', 'dost', 'rods', 'dons', 'dogs']),
+                        ([[2, 14, 20, 15], [3, 14, 6, 18], [3, 14, 13, 18],
+                                 [3, 14, 18, 19], [7, 0, 21, 4], [17, 14, 3, 18],
+                                 [18, 11, 8, 15], [18, 14, 22, 18], [18, 20, 3, 18]],
                          {'have': 0, 'slip': 1, 'coup': 1, 'sows': 2, 'suds': 2, 'dost': 3, 'rods': 3, 'dons': 3, 'dogs': 4}))
         self.assertRaises(ValueError, get_allwords_and_guesses, "exampleWordsBad.txt", "example.txt", 4)
         self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleordsBad.txt", "example.txt", 4)
@@ -19,6 +21,21 @@ class Tester(unittest.TestCase):
         self.assertEqual(binary_search(2, [1, 2, 3]), 1)
         self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
         self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
+
+    def test_str_to_list_nums(self):
+        self.assertEqual(str_to_list_nums(""), [])
+        self.assertEqual(str_to_list_nums("a"), [0])
+        self.assertEqual(str_to_list_nums("b"), [1])
+        self.assertEqual(str_to_list_nums("m"), [12])
+        self.assertEqual(str_to_list_nums("y"), [24])
+        self.assertEqual(str_to_list_nums("z"), [25])
+        self.assertEqual(str_to_list_nums("abmyz"), [0, 1, 12, 24, 25])
+        self.assertEqual(str_to_list_nums("dogs"), [3, 14, 6, 18])
+        self.assertRaises(ValueError, str_to_list_nums, "A")
+        self.assertRaises(ValueError, str_to_list_nums, "{")
+        self.assertRaises(ValueError, str_to_list_nums, "Z")
+        self.assertRaises(ValueError, str_to_list_nums, "abracaDABra")
+
 
     def test_get_char_from_num(self):
         self.assertEqual(get_char_from_num(0), 'a')
@@ -36,31 +53,11 @@ class Tester(unittest.TestCase):
         self.assertEqual(get_num_from_char('m'), 12)
         self.assertEqual(get_num_from_char('y'), 24)
         self.assertEqual(get_num_from_char('z'), 25)
-        self.assertEqual(get_num_from_char('a'), 0)
         self.assertRaises(ValueError, get_num_from_char, 'A')
         self.assertRaises(ValueError, get_num_from_char, '{')
         self.assertRaises(ValueError, get_num_from_char, 'Z')
         self.assertRaises(TypeError, get_num_from_char, '')
         self.assertRaises(TypeError, get_num_from_char, 'hi')
-        
-    def test_matchNumber(self):
-        self.assertEqual(matchNumber("cats", "dogs"), 1)
-        self.assertEqual(matchNumber("spool", "cools"), 4)
-        self.assertEqual(matchNumber("Rose", "rats"), 2)
-        self.assertEqual(matchNumber("dog", "cat"), 0)
-        
-    def test_lowerCaseAZ(self):
-        self.assertEqual(lowerCaseAZ("cats"), True)
-        self.assertEqual(lowerCaseAZ("dogs"), True)
-        self.assertEqual(lowerCaseAZ("spool"), True)
-        self.assertEqual(lowerCaseAZ("sdpfwpfnx"), True)
-        self.assertEqual(lowerCaseAZ("Cats"), False)
-        self.assertEqual(lowerCaseAZ("Rose"), False)
-        self.assertEqual(lowerCaseAZ("dksoI"), False)
-        self.assertEqual(lowerCaseAZ("runner1"), False)
-        self.assertEqual(lowerCaseAZ("l3tter"), False)
-        self.assertEqual(lowerCaseAZ("not-a-word"), False)
-        self.assertEqual(lowerCaseAZ("runner;"), False)
 
 
 if __name__ == '__main__':
