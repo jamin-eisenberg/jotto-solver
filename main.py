@@ -1,5 +1,6 @@
 from json import load
 import collections
+from z3 import *
 
 # Iterative binary search
 # Returns the index of the element in the list if present, otherwise -1
@@ -42,7 +43,7 @@ def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
         if binary_search(guess, allwords) == -1:
             raise ValueError("All guesses must be in the provided dictionary"
                              "and the same length as the secret word. "
-                             f"'{guess}' violates this. \n{guesses.keys()}\n{allwords}")
+                             f"'{guess}' violates this.")
 
     return allwords, guesses
 
@@ -59,6 +60,22 @@ def get_num_from_char(ch):
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
-if __name__ == '__main__':
 
-    secret_word = []
+if __name__ == '__main__':
+    sw_letters = int(input("Enter the number of letters in the secret word: "))
+    
+    allwords, guesses = get_allwords_and_guesses(
+        input("Enter the filename you want to load the dictionary of words from: "),
+        input("Enter the filename you want to load the history of guesses from: "),
+        sw_letters)
+
+    secret_word = [ Int(f"letter_{i}") for i in range(sw_letters) ]
+
+    # all of secret_word's letters must be between 'a' and 'z'
+
+    # secret_word must be in the dictionary
+
+    # for each guess:
+    #    matchNumber(guess, secret_word) must be the guess's given number of matches
+
+        
