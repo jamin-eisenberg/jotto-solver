@@ -42,6 +42,25 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, get_num_from_char, 'Z')
         self.assertRaises(TypeError, get_num_from_char, '')
         self.assertRaises(TypeError, get_num_from_char, 'hi')
+        
+    def test_matchNumber(self):
+        self.assertEqual(matchNumber("cats", "dogs"), 1)
+        self.assertEqual(matchNumber("spool", "cools"), 4)
+        self.assertEqual(matchNumber("Rose", "rats"), 2)
+        self.assertEqual(matchNumber("dog", "cat"), 0)
+        
+    def test_lowerCaseAZ(self):
+        self.assertEqual(lowerCaseAZ("cats"), True)
+        self.assertEqual(lowerCaseAZ("dogs"), True)
+        self.assertEqual(lowerCaseAZ("spool"), True)
+        self.assertEqual(lowerCaseAZ("sdpfwpfnx"), True)
+        self.assertEqual(lowerCaseAZ("Cats"), False)
+        self.assertEqual(lowerCaseAZ("Rose"), False)
+        self.assertEqual(lowerCaseAZ("dksoI"), False)
+        self.assertEqual(lowerCaseAZ("runner1"), False)
+        self.assertEqual(lowerCaseAZ("l3tter"), False)
+        self.assertEqual(lowerCaseAZ("not-a-word"), False)
+        self.assertEqual(lowerCaseAZ("runner;"), False)
 
 
 if __name__ == '__main__':

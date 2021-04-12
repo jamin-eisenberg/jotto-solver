@@ -1,7 +1,7 @@
 # CS2800Final
 SMT solver for Jotto
 
-For our project, we'd like to write a Java program to convert a game state of Jotto into a boolean 
+For our project, we'd like to write a Python program to convert a game state of Jotto into a boolean 
 satisfiability problem, the solution of which will tell us whether there is a word that fits the 
 restrictions imposed by previous guesses.
 
@@ -33,7 +33,7 @@ Word-holder: You got it. Good job, friend!
 
 Given a guess history like a subset of the example above, the end result of our program will be a boolean
 that represents whether our word list contains a word that "passes" all of the parts of the history. For
-example, given the history from lines 183 - 188, the program would return true if "dogs" was in the list
+example, given the history above, the program would return true if "dogs" was in the list
 (or if "pwnk" was in the list - because that would give all of the same results). The meat of programming
 we'll do will be converting the guess history (and our word list) into a boolean satisfiability problem.
 The results of that would just be plugged into a SAT solver.

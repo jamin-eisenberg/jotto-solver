@@ -62,6 +62,7 @@ def get_num_from_char(ch):
 
 
 if __name__ == '__main__':
+    
     sw_letters = int(input("Enter the number of letters in the secret word: "))
     
     allwords, guesses = get_allwords_and_guesses(
@@ -78,4 +79,4 @@ if __name__ == '__main__':
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
 
-        
+    secret_word = []    
