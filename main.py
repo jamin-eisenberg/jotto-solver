@@ -55,6 +55,10 @@ def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
 def str_to_list_nums(s):
     return list(map(lambda ch: get_num_from_char(ch), s))
 
+# converts a list of numbers to a string according to get_char_from_num
+def list_nums_to_str(ls):
+    return "".join(list(map(lambda n: get_char_from_num(n), ls)))
+
 # converts a number from 0 to 25 to a letter from 'a' to 'z'
 def get_char_from_num(n):
     if 0 <= n <= 25:
@@ -87,7 +91,7 @@ if __name__ == '__main__':
 
     main("exampleWords.txt", "example.txt", 4)
 
-##     sw_letters = int(input("Enter the number of letters in the secret word: "))
+##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
 ##        input("Enter the filename you want to load the dictionary of words from: "),
 ##        input("Enter the filename you want to load the history of guesses from: "),

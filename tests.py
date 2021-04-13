@@ -36,6 +36,18 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, str_to_list_nums, "Z")
         self.assertRaises(ValueError, str_to_list_nums, "abracaDABra")
 
+    def test_list_nums_to_str(self):
+        self.assertEqual(list_nums_to_str([]), "")
+        self.assertEqual(list_nums_to_str([0]), "a")
+        self.assertEqual(list_nums_to_str([1]), "b")
+        self.assertEqual(list_nums_to_str([12]), "m")
+        self.assertEqual(list_nums_to_str([24]), "y")
+        self.assertEqual(list_nums_to_str([25]), "z")
+        self.assertEqual(list_nums_to_str([0, 1, 12, 24, 25]), "abmyz")
+        self.assertEqual(list_nums_to_str([3, 14, 6, 18]), "dogs")
+        self.assertRaises(ValueError, list_nums_to_str, [-1])
+        self.assertRaises(ValueError, list_nums_to_str, [26])
+        self.assertRaises(ValueError, list_nums_to_str, [1, 2, 4, 8, 16, 32, 64])
 
     def test_get_char_from_num(self):
         self.assertEqual(get_char_from_num(0), 'a')
