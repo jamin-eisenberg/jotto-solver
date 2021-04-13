@@ -10,15 +10,12 @@ def binary_search(x, ls):
     mid = 0
  
     while low <= high:
- 
         mid = low + (high - low) // 2
  
         if ls[mid] < x:
             low = mid + 1
- 
         elif ls[mid] > x:
-            high = mid - 1
- 
+            high = mid -1 
         else:
             return mid
  
@@ -53,25 +50,40 @@ def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
 
 # converts each letter in a string to a number according to get_num_from_char
 def str_to_list_nums(s):
-    return list(map(lambda ch: get_num_from_char(ch), s))
+    return list(map(lambda ch: char_to_num(ch), s))
 
 # converts a list of numbers to a string according to get_char_from_num
 def list_nums_to_str(ls):
-    return "".join(list(map(lambda n: get_char_from_num(n), ls)))
+    return "".join(list(map(lambda n: num_to_char(n), ls)))
 
 # converts a number from 0 to 25 to a letter from 'a' to 'z'
-def get_char_from_num(n):
+def num_to_char(n):
     if 0 <= n <= 25:
         return chr(n + 97)
     raise ValueError("Can only convert numbers between 0 and 25.")
 
 # converts a letter from 'a' to 'z' to a number from 0 to 25
-def get_num_from_char(ch):
+def char_to_num(ch):
     n = ord(ch) - 97
     if 0 <= n <= 25:
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
+#checks if the given word is all lower case and only contains letters from a to z
+def lower_case_AZ(w):
+    return w.islower() and w.isalpha()
+
+#checks to see how many matches there are between the guess and the answer, regardless
+#  of position, in O(n^2) time
+def match_number(guess, answer):
+    correctLetters = 0
+    guess = guess.casefold()
+    tempAnswer = answer.casefold()
+    for guessL in guess:
+        if guessL in tempAnswer:
+            tempAnswer = tempAnswer.replace(guessL, "", 1)
+            correctLetters += 1
+    return correctLetters
 
 
 def main(allwords_fd, guesses_fd, sw_letters):

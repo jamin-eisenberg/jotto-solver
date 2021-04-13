@@ -50,26 +50,45 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, list_nums_to_str, [1, 2, 4, 8, 16, 32, 64])
 
     def test_get_char_from_num(self):
-        self.assertEqual(get_char_from_num(0), 'a')
-        self.assertEqual(get_char_from_num(1), 'b')
-        self.assertEqual(get_char_from_num(12), 'm')
-        self.assertEqual(get_char_from_num(24), 'y')
-        self.assertEqual(get_char_from_num(25), 'z')
-        self.assertRaises(ValueError, get_char_from_num, -1)
-        self.assertRaises(ValueError, get_char_from_num, 26)
-        self.assertRaises(ValueError, get_char_from_num, 97)
+        self.assertEqual(num_to_char(0), 'a')
+        self.assertEqual(num_to_char(1), 'b')
+        self.assertEqual(num_to_char(12), 'm')
+        self.assertEqual(num_to_char(24), 'y')
+        self.assertEqual(num_to_char(25), 'z')
+        self.assertRaises(ValueError, num_to_char, -1)
+        self.assertRaises(ValueError, num_to_char, 26)
+        self.assertRaises(ValueError, num_to_char, 97)
 
     def test_get_num_from_char(self):
-        self.assertEqual(get_num_from_char('a'), 0)
-        self.assertEqual(get_num_from_char('b'), 1)
-        self.assertEqual(get_num_from_char('m'), 12)
-        self.assertEqual(get_num_from_char('y'), 24)
-        self.assertEqual(get_num_from_char('z'), 25)
-        self.assertRaises(ValueError, get_num_from_char, 'A')
-        self.assertRaises(ValueError, get_num_from_char, '{')
-        self.assertRaises(ValueError, get_num_from_char, 'Z')
-        self.assertRaises(TypeError, get_num_from_char, '')
-        self.assertRaises(TypeError, get_num_from_char, 'hi')
+        self.assertEqual(char_to_num('a'), 0)
+        self.assertEqual(char_to_num('b'), 1)
+        self.assertEqual(char_to_num('m'), 12)
+        self.assertEqual(char_to_num('y'), 24)
+        self.assertEqual(char_to_num('z'), 25)
+        self.assertRaises(ValueError, char_to_num, 'A')
+        self.assertRaises(ValueError, char_to_num, '{')
+        self.assertRaises(ValueError, char_to_num, 'Z')
+        self.assertRaises(TypeError, char_to_num, '')
+        self.assertRaises(TypeError, char_to_num, 'hi')
+
+    def test_match_number(self):
+        self.assertEqual(match_number("cats", "dogs"), 1)
+        self.assertEqual(match_number("spool", "cools"), 4)
+        self.assertEqual(match_number("Rose", "rats"), 2)
+        self.assertEqual(match_number("dog", "cat"), 0)
+
+    def test_lower_case_AZ(self):
+        self.assertEqual(lower_case_AZ("cats"), True)
+        self.assertEqual(lower_case_AZ("dogs"), True)
+        self.assertEqual(lower_case_AZ("spool"), True)
+        self.assertEqual(lower_case_AZ("sdpfwpfnx"), True)
+        self.assertEqual(lower_case_AZ("Cats"), False)
+        self.assertEqual(lower_case_AZ("Rose"), False)
+        self.assertEqual(lower_case_AZ("dksoI"), False)
+        self.assertEqual(lower_case_AZ("runner1"), False)
+        self.assertEqual(lower_case_AZ("l3tter"), False)
+        self.assertEqual(lower_case_AZ("not-a-word"), False)
+        self.assertEqual(lower_case_AZ("runner;"), False)
 
 
 if __name__ == '__main__':
