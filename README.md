@@ -45,3 +45,15 @@ We think this project is in scope for this course because it actually feels like
 with constraint programming. "My word must share exactly three letters with the one you just said,"
 seems like a strong indication of that. Additionally, what this (ideally) boils down to is a boolean
 satisfiability problem, which seems part of the core of what we've been studying.
+
+# Use Instructions
+(Note that these isntrcutions are for the finished product, which this is not, yet.)
+
+In order to use this project, you will need Z3Py, an SMT solver for Python. This can be installed using pip. More detailed instructions can be found here: https://github.com/Z3Prover/z3  
+
+Once Z3Py is installed, you should be able to run main.py. Before you do that, though, you may want to generate some guesses with guess_generator.py. Its use is simple. It will ask you to enter the words that were guesses, then the corresponding number that the word-holder said. When you are done, use "s" to save the information you entered to a text file that is readable by main.py.  
+
+When you're ready, you can run main.py. It will prompt you to enter a path to the dictionary you'd like to use. You can create your own custom dictionary, or use allwords.txt, which contains tens of thousands of English words. After you've selected a dictionary, it will prompt you to enter a location to find your guesses. Enter the location you saved the guesses to when using the guesses_generator.
+
+When you've entered this, the program should give you a list of words that satisfy the guesses you've provided according to the rules of the game. If not, it likely says that the guesses you've provided are unsatisfiable. This means that the word-holder picked a word that is not in the dictionary or they made a mistake in assigning numbers to guesses.
+
