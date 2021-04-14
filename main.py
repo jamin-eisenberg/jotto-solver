@@ -74,22 +74,23 @@ def lower_case_AZ(w):
     return w.islower() and w.isalpha()
 
 #checks to see how many matches there are between the guess and the answer, regardless
-#  of position, in O(n^2) time
+#  of position, in O(n^2) time, works over lists of integers
 def match_number(guess, answer):
-    correctLetters = 0
-    guess = guess.casefold()
-    tempAnswer = answer.casefold()
-    for guessL in guess:
-        if guessL in tempAnswer:
-            tempAnswer = tempAnswer.replace(guessL, "", 1)
-            correctLetters += 1
-    return correctLetters
+    correct_letters = 0
+    temp_answer = answer
+    for guess_letter in guess:
+        if guess_letter in temp_answer:
+            tempAnswer = temp_answer.remove(guess_letter)
+            correct_letters += 1
+    return correct_letters
+
 
 
 def main(allwords_fd, guesses_fd, sw_letters):
     allwords, guesses = get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters)
 
     secret_word = [ Int(f"letter_{i}") for i in range(sw_letters) ]
+    
 
     # all of secret_word's letters must be between 'a' and 'z'
 
