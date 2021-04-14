@@ -1,6 +1,6 @@
 from json import load
 import collections
-from z3 import Int
+from z3 import *
 
 # Iterative binary search
 # Returns the index of the element in the list if present, otherwise -1
@@ -21,11 +21,13 @@ def binary_search(x, ls):
  
     return -1
 
-# loads a list of words in from a file with the given name
-# loads a mapping of guesses to their match number from a file with the given name
-# filters the list of words to make them all the length of the given number of letters
-# makes sure all of the guesses are in the list of words
-# returns a tuple of the list of words and the dictionary of guesses
+# returns a tuple with:
+#   a list of list of numbers 0-25 representing words loaded from a file with the given name
+#   a mapping of guesses to their match number loaded from a file with the given name
+# the list of words is sorted and filtered to only include words of the given length
+# the list of words is converted into a list of list of numbers 0-25
+# the mapping of guesses is verified to make sure all guesses are in the dictionary
+
 def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
     
     with open(allwords_fd) as allwords_f:
@@ -74,16 +76,15 @@ def lower_case_AZ(w):
     return w.islower() and w.isalpha()
 
 #checks to see how many matches there are between the guess and the answer, regardless
-#  of position, in O(n^2) time
+#  of position, in O(n^2) time, works over lists of integers
 def match_number(guess, answer):
-    correctLetters = 0
-    guess = guess.casefold()
-    tempAnswer = answer.casefold()
-    for guessL in guess:
-        if guessL in tempAnswer:
-            tempAnswer = tempAnswer.replace(guessL, "", 1)
-            correctLetters += 1
-    return correctLetters
+    correct_letters = 0
+    temp_answer = answer
+    for guess_letter in guess:
+        if guess_letter in temp_answer:
+            tempAnswer = temp_answer.remove(guess_letter)
+            correct_letters += 1
+    return correct_letters
 
 
 def main(allwords_fd, guesses_fd, sw_letters):
@@ -91,12 +92,22 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
     secret_word = [ Int(f"letter_{i}") for i in range(sw_letters) ]
 
+    s = Solver()
+
     # all of secret_word's letters must be between 'a' and 'z'
+    for letter in secret_word:
+        s.add(0 <= letter)
+        s.add(letter <= 25)
 
     # secret_word must be in the dictionary
+    #s.add(binary_search(secret_word, allwords) != -1)
+    s.add(secret_word in allwords)
+
 
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
+    for guess in guesses:
+        s.add(match_number(str_to_list_nums(guess), secret_word) == guesses[guess])
 
 
 if __name__ == '__main__':
