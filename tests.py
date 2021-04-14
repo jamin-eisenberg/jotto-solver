@@ -2,6 +2,97 @@ import unittest
 from main import *
 
 class Tester(unittest.TestCase):
+    
+    def test_binary_search(self):
+        self.assertEqual(binary_search(1, []), -1)
+        self.assertEqual(binary_search('', []), -1)
+        self.assertEqual(binary_search(1, [1]), 0)
+        self.assertEqual(binary_search(1, [0]), -1)
+        self.assertEqual(binary_search(2, [1, 2, 3]), 1)
+        self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
+        self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
+
+    def test_num_in_list_z3(self):
+        self.assertEqual(num_in_list_z3(1, []), False)
+        self.assertEqual(num_in_list_z3(1, [1]), Or(True, False))
+        self.assertEqual(num_in_list_z3(1, [1,2]), Or(True, Or(False, False)))
+        self.assertEqual(num_in_list_z3(2, [1,2]), Or(False, Or(True, False)))
+        self.assertEqual(num_in_list_z3(1, [2,3,4]), Or(False, Or(False, Or(False, False))))
+        self.assertEqual(num_in_list_z3(Int("x"), []), False)
+        self.assertEqual(num_in_list_z3(Int("x"), [1]), Or(Int("x") == 1, False))
+        self.assertEqual(num_in_list_z3(Int("x"), [1,2]), Or(Int("x") == 1, Or(Int("x") == 2, False)))
+
+        s = Solver()
+
+        x = Int("x")
+        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x == 3)
+        self.assertEqual(s.check(), sat)
+
+        s = Solver()
+
+        x = Int("x")
+        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x == 0)
+        self.assertEqual(s.check(), unsat)
+        
+
+    def test_list_equal_z3(self):
+        self.assertEqual(list_equal_z3([], []), True)
+        self.assertEqual(list_equal_z3([1], []), False)
+        self.assertEqual(list_equal_z3([], [2]), False)
+        self.assertEqual(list_equal_z3([1], [1]), And(True,True))
+        self.assertEqual(list_equal_z3([1,2,3], [1,2,3]), And(True,And(True,And(True,True))))
+        self.assertEqual(list_equal_z3([1], [2]), And(False, True))
+        self.assertEqual(list_equal_z3([1], [1,2]), And(True, False))
+        self.assertEqual(list_equal_z3([Int("x")], [1]), And(Int("x") == 1, True))
+        self.assertEqual(list_equal_z3([Int("x")], [1,2]), And(Int("x") == 1, False))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1]), And(Int("x") == 1, False))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2]), And(Int("x") == 1,And(Int("y") == 2, True)))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2,3]), And(Int("x") == 1,And(Int("y") == 2, False)))
+
+        s = Solver()
+
+        x = [ Int(f"x_{i}") for i in range(5) ]
+        s.add(list_equal_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x[0] == 1)
+        self.assertEqual(s.check(), sat)
+        s.add(x[1] == 3)
+        self.assertEqual(s.check(), unsat)
+
+    def test_list_in_lol_z3(self):
+        self.assertEqual(list_in_lol_z3([], [[]]), Or(True, False))
+        self.assertEqual(list_in_lol_z3([1], [[]]), Or(False, False))
+        self.assertEqual(list_in_lol_z3([], [[1]]), Or(False, False))
+        self.assertEqual(list_in_lol_z3([1], [[1]]), Or(And(True, True), False))
+        self.assertEqual(list_in_lol_z3([2], [[1]]), Or(And(False, True), False))
+        self.assertEqual(list_in_lol_z3([1,2], [[1]]), Or(And(True, False), False))
+        self.assertEqual(list_in_lol_z3([1], [[1,2]]), Or(And(True, False), False))
+        self.assertEqual(list_in_lol_z3([1,2], [[1,2]]), Or(And(True, And(True, True)), False))
+        self.assertEqual(list_in_lol_z3([1,2], [[1],[1,2]]), Or(And(True, False), Or(And(True, And(True, True)), False)))
+        self.assertEqual(list_in_lol_z3([Int("x")], [[1]]), Or(And(Int("x") == 1, True), False))
+        self.assertEqual(list_in_lol_z3([Int("x")], [[1],[2]]), Or(And(Int("x") == 1, True), Or(And(Int("x") == 2, True), False)))
+
+        s = Solver()
+
+        x = [ Int(f"x_{i}") for i in range(5) ]
+        s.add(list_in_lol_z3(x, [[1],[1,2,3,4,5],[1,2,3],[5,2,4,3,1]]))
+        self.assertEqual(s.check(), sat)
+        s.add(x[1] == 2)
+        self.assertEqual(s.check(), sat)
+        s.add(x[0] == 1)
+        self.assertEqual(s.check(), sat)
+        s.add(x[3] == 4)
+        self.assertEqual(s.check(), sat)
+        s.add(x[4] == 3)
+        self.assertEqual(s.check(), unsat)
+
     def test_get_allwords_and_guesses(self):
         self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "example.txt", 4),
                         ([[2, 14, 20, 15], [3, 14, 6, 18], [3, 14, 13, 18],
@@ -11,16 +102,6 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, get_allwords_and_guesses, "exampleWordsBad.txt", "example.txt", 4)
         self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleordsBad.txt", "example.txt", 4)
         self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleWordsBad.txt", "exmple.txt", 4)
-
-
-    def test_binary_search(self):
-        self.assertEqual(binary_search(1, []), -1)
-        self.assertEqual(binary_search('', []), -1)
-        self.assertEqual(binary_search(1, [1]), 0)
-        self.assertEqual(binary_search(1, [0]), -1)
-        self.assertEqual(binary_search(2, [1, 2, 3]), 1)
-        self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
-        self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
 
     def test_str_to_list_nums(self):
         self.assertEqual(str_to_list_nums(""), [])
@@ -71,13 +152,9 @@ class Tester(unittest.TestCase):
         self.assertRaises(TypeError, char_to_num, '')
         self.assertRaises(TypeError, char_to_num, 'hi')
 
-    def test_match_number(self):
-        self.assertEqual(match_number("cats", "dogs"), 1)
-        self.assertEqual(match_number("spool", "cools"), 4)
-        self.assertEqual(match_number("Rose", "rats"), 2)
-        self.assertEqual(match_number("dog", "cat"), 0)
-
     def test_lower_case_AZ(self):
+        self.assertEqual(lower_case_AZ(""), False)
+        self.assertEqual(lower_case_AZ("a"), True)
         self.assertEqual(lower_case_AZ("cats"), True)
         self.assertEqual(lower_case_AZ("dogs"), True)
         self.assertEqual(lower_case_AZ("spool"), True)
@@ -89,6 +166,31 @@ class Tester(unittest.TestCase):
         self.assertEqual(lower_case_AZ("l3tter"), False)
         self.assertEqual(lower_case_AZ("not-a-word"), False)
         self.assertEqual(lower_case_AZ("runner;"), False)
+
+    def test_match_number(self):
+        self.assertEqual(match_number(str_to_list_nums("cats"), str_to_list_nums("dogs")), 1)
+        self.assertEqual(match_number(str_to_list_nums("spool"), str_to_list_nums("cools")), 4)
+        self.assertEqual(match_number(str_to_list_nums("rose"), str_to_list_nums("rats")), 2)
+        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("cat")), 0)
+        self.assertEqual(match_number(str_to_list_nums("have"), str_to_list_nums("dogs")), 0)
+        self.assertEqual(match_number(str_to_list_nums("slip"), str_to_list_nums("dogs")), 1)
+        self.assertEqual(match_number(str_to_list_nums("coup"), str_to_list_nums("dogs")), 1)
+        self.assertEqual(match_number(str_to_list_nums("sows"), str_to_list_nums("dogs")), 2)
+        self.assertEqual(match_number(str_to_list_nums("suds"), str_to_list_nums("dogs")), 2)
+        self.assertEqual(match_number(str_to_list_nums("dost"), str_to_list_nums("dogs")), 3)
+        self.assertEqual(match_number(str_to_list_nums("rods"), str_to_list_nums("dogs")), 3)
+        self.assertEqual(match_number(str_to_list_nums("dons"), str_to_list_nums("dogs")), 3)
+        self.assertEqual(match_number(str_to_list_nums("dogs"), str_to_list_nums("dogs")), 4)
+        self.assertEqual(match_number(str_to_list_nums("error"), str_to_list_nums("roars")), 3)
+        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("h")), 0)
+        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("d")), 1)
+        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("")), 0)
+        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("a")), 0)
+        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("dogs")), 3)
+
+        s = str_to_list_nums("hello")
+        self.assertEqual(match_number(s[:],s), 5)
+        self.assertEqual(s, str_to_list_nums("hello"))
 
 
 if __name__ == '__main__':
