@@ -91,6 +91,7 @@ def main(allwords_fd, guesses_fd, sw_letters):
     allwords, guesses = get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters)
 
     secret_word = [ Int(f"letter_{i}") for i in range(sw_letters) ]
+    
 
     s = Solver()
 
