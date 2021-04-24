@@ -40,6 +40,14 @@ class Tester(unittest.TestCase):
         s.add(x == 0)
         self.assertEqual(s.check(), unsat)
         
+                
+    def test_remove_z3(self):
+        self.assertEqual(remove_z3(1, [1]), False)
+        self.assertEqual(remove_z3(1, [1, 2, 3]), False)
+        self.assertEqual(remove_z3(1, [2, 3, 1]), If(False, False, If(False, False, False)))
+        self.assertEqual(remove_z3(1, [4, 3, 2, 1]), If(False, ))
+        
+        
 
     def test_list_equal_z3(self):
         self.assertEqual(list_equal_z3([], []), True)
