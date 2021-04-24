@@ -121,12 +121,27 @@ def match_number(guess, answer):
             correct_letters += 1
     return correct_letters
 
+
+
+
+
+
 #z3-ified remove function - constrains a list to not have the first instance of
 # the given integer, assumes that x is in ls
-def remove_z3(x, ls):
-    if len(ls) == 1:
-        return []
-    return If(ls[0] == x, ls[1:], remove_z3(x, ls[1:]))
+def remove_z3(x, Ls):
+    if Ls == cons(x, nil):
+        return nil
+    return If(simplify(simplify(car(Ls)) == x), simplify(cdr(Ls)),
+              cons(simplify(car(Ls)).as_long(), remove_z3(x, simplify(cdr(Ls)))))
+
+ 
+
+def remove_z3_v2(x, Ls):
+    return If(simplify(car(Ls)).as_long() == x, simplify(cdr(Ls)),
+              cons(car(Ls), remove_z3(x, simplify(cdr(Ls)))))
+
+ 
+
 
 #z3-ified match_number
 def match_number_z3(guess, answer):
@@ -137,6 +152,18 @@ def match_number_z3(guess, answer):
            temp_guess.remove())
     
     return correct_letters
+
+
+
+
+
+
+
+
+
+
+
+
 
 # integrates methods and generates constraints
 def main(allwords_fd, guesses_fd, sw_letters):
