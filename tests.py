@@ -13,14 +13,12 @@ class Tester(unittest.TestCase):
         self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
 
     def test_num_in_list_z3(self):
-##        self.assertEqual(num_in_list_z3(1, nil), False)
-##        self.assertEqual(num_in_list_z3(1, cons(1, nil)), Or(1 == 1, False))
-##        self.assertEqual(num_in_list_z3(1, cons(1, cons(2, nil))), Or(True, Or(False, False)))
-##        self.assertEqual(num_in_list_z3(2, cons(1, cons(2, nil))), Or(False, Or(True, False)))
-##        self.assertEqual(num_in_list_z3(1, cons(2, cons(3, cons(4, nil)))), Or(False, Or(False, Or(False, False))))
-##        self.assertEqual(num_in_list_z3(Int("x"), nil), False)
-##        self.assertEqual(num_in_list_z3(Int("x"), cons(1, nil)), Or(1 == Int("x"), False))
-##        self.assertEqual(num_in_list_z3(Int("x"), cons(1, cons(2, nil))), Or(1 == Int("x"), Or(Int("x") == 2, False)))
+        self.assertEqual(num_in_list_z3(1, nil), False)
+        self.assertEqual(simplify(num_in_list_z3(1, cons(1, nil))), True)
+        self.assertEqual(simplify(num_in_list_z3(1, cons(1, cons(2, nil)))), True)
+        self.assertEqual(simplify(num_in_list_z3(2, cons(1, cons(2, nil)))), True)
+        self.assertEqual(simplify(num_in_list_z3(1, cons(2, cons(3, cons(4, nil))))), False)
+        self.assertEqual(num_in_list_z3(Int("x"), nil), False)
 
         s = Solver()
 
