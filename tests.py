@@ -13,19 +13,19 @@ class Tester(unittest.TestCase):
         self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
 
     def test_num_in_list_z3(self):
-        self.assertEqual(num_in_list_z3(1, []), False)
-        self.assertEqual(num_in_list_z3(1, [1]), Or(True, False))
-        self.assertEqual(num_in_list_z3(1, [1,2]), Or(True, Or(False, False)))
-        self.assertEqual(num_in_list_z3(2, [1,2]), Or(False, Or(True, False)))
-        self.assertEqual(num_in_list_z3(1, [2,3,4]), Or(False, Or(False, Or(False, False))))
-        self.assertEqual(num_in_list_z3(Int("x"), []), False)
-        self.assertEqual(num_in_list_z3(Int("x"), [1]), Or(Int("x") == 1, False))
-        self.assertEqual(num_in_list_z3(Int("x"), [1,2]), Or(Int("x") == 1, Or(Int("x") == 2, False)))
+##        self.assertEqual(num_in_list_z3(1, nil), False)
+##        self.assertEqual(num_in_list_z3(1, cons(1, nil)), Or(1 == 1, False))
+##        self.assertEqual(num_in_list_z3(1, cons(1, cons(2, nil))), Or(True, Or(False, False)))
+##        self.assertEqual(num_in_list_z3(2, cons(1, cons(2, nil))), Or(False, Or(True, False)))
+##        self.assertEqual(num_in_list_z3(1, cons(2, cons(3, cons(4, nil)))), Or(False, Or(False, Or(False, False))))
+##        self.assertEqual(num_in_list_z3(Int("x"), nil), False)
+##        self.assertEqual(num_in_list_z3(Int("x"), cons(1, nil)), Or(1 == Int("x"), False))
+##        self.assertEqual(num_in_list_z3(Int("x"), cons(1, cons(2, nil))), Or(1 == Int("x"), Or(Int("x") == 2, False)))
 
         s = Solver()
 
         x = Int("x")
-        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+        s.add(num_in_list_z3(x, list_to_cons([1,2,3,4,5])))
 
         self.assertEqual(s.check(), sat)
         s.add(x == 3)
@@ -34,12 +34,11 @@ class Tester(unittest.TestCase):
         s = Solver()
 
         x = Int("x")
-        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+        s.add(num_in_list_z3(x, list_to_cons([1,2,3,4,5])))
 
         self.assertEqual(s.check(), sat)
         s.add(x == 0)
         self.assertEqual(s.check(), unsat)
-        
 
     def test_list_equal_z3(self):
         self.assertEqual(list_equal_z3([], []), True)
@@ -92,6 +91,12 @@ class Tester(unittest.TestCase):
         self.assertEqual(s.check(), sat)
         s.add(x[4] == 3)
         self.assertEqual(s.check(), unsat)
+
+    def test_list_to_cons(self):
+        self.assertEqual(list_to_cons([]), nil)
+        self.assertEqual(list_to_cons([1]), cons(1, nil))
+        self.assertEqual(list_to_cons([1, 2]), cons(1, cons(2, nil)))
+        self.assertEqual(list_to_cons([1, 2, 3]), cons(1, cons(2, cons(3, nil))))
 
     def test_get_allwords_and_guesses(self):
         self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "example.txt", 4),
@@ -151,21 +156,6 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, char_to_num, 'Z')
         self.assertRaises(TypeError, char_to_num, '')
         self.assertRaises(TypeError, char_to_num, 'hi')
-
-    def test_lower_case_AZ(self):
-        self.assertEqual(lower_case_AZ(""), False)
-        self.assertEqual(lower_case_AZ("a"), True)
-        self.assertEqual(lower_case_AZ("cats"), True)
-        self.assertEqual(lower_case_AZ("dogs"), True)
-        self.assertEqual(lower_case_AZ("spool"), True)
-        self.assertEqual(lower_case_AZ("sdpfwpfnx"), True)
-        self.assertEqual(lower_case_AZ("Cats"), False)
-        self.assertEqual(lower_case_AZ("Rose"), False)
-        self.assertEqual(lower_case_AZ("dksoI"), False)
-        self.assertEqual(lower_case_AZ("runner1"), False)
-        self.assertEqual(lower_case_AZ("l3tter"), False)
-        self.assertEqual(lower_case_AZ("not-a-word"), False)
-        self.assertEqual(lower_case_AZ("runner;"), False)
 
     def test_match_number(self):
         self.assertEqual(match_number(str_to_list_nums("cats"), str_to_list_nums("dogs")), 1)

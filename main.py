@@ -2,6 +2,22 @@ from json import load
 import collections
 from z3 import *
 
+# Declare a List of integers
+List = Datatype('List')
+# Constructor cons: (Int, List) -> List
+List.declare('cons', ('car', IntSort()), ('cdr', List))
+# Constructor nil: List
+List.declare('nil')
+# Create the datatype
+List = List.create()
+
+cons = List.cons
+car  = List.car
+cdr  = List.cdr
+nil  = List.nil
+
+
+
 # Iterative binary search
 # Returns the index of the element in the list if present, otherwise -1
 def binary_search(x, ls):
@@ -23,9 +39,9 @@ def binary_search(x, ls):
 
 # generates a constraint for the given number being in the list of numbers
 def num_in_list_z3(x, ls):
-    if ls == []:
+    if simplify(ls) == nil:
         return False
-    return Or(x == ls[0], num_in_list_z3(x, ls[1:]))
+    return Or(simplify(car(ls)) == x, num_in_list_z3(x, cdr(ls)))
 
 # generates a constraint for list equality between the given lists
 def list_equal_z3(ls1, ls2):
@@ -33,13 +49,17 @@ def list_equal_z3(ls1, ls2):
         return ls1 == ls2
     return And(ls1[0] == ls2[0], list_equal_z3(ls1[1:], ls2[1:]))
 
-# generates a constraint for making x, a list of numbers, in a list of list of numbers
+# generates a constraint for making x, a Python list of numbers, in a Python list of list of numbers
 def list_in_lol_z3(x, ls):
     if ls == []:
         return False
     return Or(list_equal_z3(x, ls[0]), list_in_lol_z3(x, ls[1:]))
 
-
+# converts a flat Python list to a cons
+def list_to_cons(ls):
+    if ls == []:
+        return nil
+    return cons(ls[0], list_to_cons(ls[1:]))
 
 # returns a tuple with:
 #   a list of list of numbers 0-25 representing words loaded from a file with the given name
@@ -90,10 +110,6 @@ def char_to_num(ch):
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
-#checks if the given word is all lower case and only contains letters from a to z
-def lower_case_AZ(w):
-    return w.islower() and w.isalpha()
-
 #checks to see how many matches there are between the guess and the answer, regardless
 #  of position, in O(n^2) time, works over lists of integers
 def match_number(guess, answer):
@@ -133,7 +149,14 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
 if __name__ == '__main__':
 
-    main("exampleWords.txt", "example.txt", 4)
+##    main("exampleWords.txt", "example.txt", 4)
+
+    
+
+    print(simplify(nil == nil))
+
+##    print(simplify(If(car(cons(1, nil)) == 1, cons(2, nil), cons(3, nil))))
+    
 
 ##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
