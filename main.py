@@ -2,22 +2,6 @@ from json import load
 import collections
 from z3 import *
 
-# Declare a List of integers
-List = Datatype('List')
-# Constructor cons: (Int, List) -> List
-List.declare('cons', ('car', IntSort()), ('cdr', List))
-# Constructor nil: List
-List.declare('nil')
-# Create the datatype
-List = List.create()
-
-cons = List.cons
-car  = List.car
-cdr  = List.cdr
-nil  = List.nil
-
-
-
 # Iterative binary search
 # Returns the index of the element in the list if present, otherwise -1
 def binary_search(x, ls):
@@ -125,33 +109,55 @@ def match_number(guess, answer):
 
 
 
+##def remove(x, Ls):
+####    if simplify(Ls) == nil:
+####        return nil
+##
+##    if x == simplify(car(Ls)):
+##        return cdr(Ls)
+##    else:
+##        return cons(car(Ls), remove(x, cdr(Ls)))
+
+##def remove_z3(x, Ls, o):
+##    if Ls == []:
+##        return o == []
+##    
+##    return If(x == simplify(car(Ls)), o == cdr(Ls), o == cons(car(Ls), remove_z3(x, cdr(Ls))))
+
+def remove_z3(x, Ls, o):
+    if len(Ls) == 1:
+        return o == []
+    
+    return If(x == Ls[0], list_equal_z3(o, Ls[1:]),
+              And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:])))
+
 
 #z3-ified remove function - constrains a list to not have the first instance of
 # the given integer, assumes that x is in ls
-def remove_z3(x, Ls):
-    if Ls == cons(x, nil):
-        return nil
-    return If(simplify(simplify(car(Ls)) == x), simplify(cdr(Ls)),
-              cons(simplify(car(Ls)).as_long(), remove_z3(x, simplify(cdr(Ls)))))
-
- 
-
-def remove_z3_v2(x, Ls):
-    return If(simplify(car(Ls)).as_long() == x, simplify(cdr(Ls)),
-              cons(car(Ls), remove_z3(x, simplify(cdr(Ls)))))
-
- 
-
-
-#z3-ified match_number
-def match_number_z3(guess, answer):
-    correct_letters = 0
-    temp_guess = guess[:]
-    for answer_int in answer:
-        If(num_in_list_z3(answer_int, temp_guess),
-           temp_guess.remove())
-    
-    return correct_letters
+##def remove_z3(x, Ls):
+##    if Ls == cons(x, nil):
+##        return nil
+##    return If(simplify(simplify(car(Ls)) == x), simplify(cdr(Ls)),
+##              cons(simplify(car(Ls)).as_long(), remove_z3(x, simplify(cdr(Ls)))))
+##
+## 
+##
+##def remove_z3_v2(x, Ls):
+##    return If(simplify(car(Ls)).as_long() == x, simplify(cdr(Ls)),
+##              cons(car(Ls), remove_z3(x, simplify(cdr(Ls)))))
+##
+## 
+##
+##
+###z3-ified match_number
+##def match_number_z3(guess, answer):
+##    correct_letters = 0
+##    temp_guess = guess[:]
+##    for answer_int in answer:
+##        If(num_in_list_z3(answer_int, temp_guess),
+##           temp_guess.remove())
+##    
+##    return correct_letters
 
 
 
