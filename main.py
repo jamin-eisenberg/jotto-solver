@@ -120,13 +120,13 @@ def match_number_z3(guess, answer, o, next_name):
                match_number_z3_acc(guess[1:], Next, o, acc + 1)),
            match_number_z3_acc(guess[1:], answer, o, acc))
 
-    return match_number_z3_acc(sorted(guess), answer, o, 0)
+    return match_number_z3_acc(guess, answer, o, 0)
 
 def remove_z3(x, Ls, o):
     if len(Ls) <= 1:
         return o == []
     
-    return If(x == Ls[0], Or(list_equal_z3(o, Ls[1:]), remove_z3(x, Ls[1:], o[1:])),
+    return If(x == Ls[0], Or(list_equal_z3(o, Ls[1:]), And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:]))),
               And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:])))
 
 def get_next_model(s):
@@ -145,7 +145,7 @@ def get_next_model(s):
         return result
     
     else:
-        print("No more solutions")
+        return None
 
 # integrates methods and generates constraints
 def main(allwords_fd, guesses_fd, sw_letters):
@@ -171,26 +171,37 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
         next_name_count += 1
 
-    first = True
+    answers = set(())
 
-    while first or input().strip() == "":
-        first = False
-        
-        m = get_next_model(s)
-            
+
+    m = get_next_model(s)
+    while m is not None:
         ans = [ -1 for i in range(sw_letters) ]
 
         for d in m.decls():
             if "letter" in d.name():
                 ans[int(d.name()[7:])] = m[d].as_long()
 
-        print(list_nums_to_str(ans))
+        answers.add(list_nums_to_str(ans))
+        
+        m = get_next_model(s)
+
+    answers = list(answers)
+
+    first = True
+
+    while answers != [] and (first or input().strip() == ""):
+        first = False
+        
+        print(answers.pop(0))
+
+    print("No more solutions")
 
     
 
 
 if __name__ == '__main__':
-    main("allwords.txt", "examples2.txt", 5)
+    main("allwords.txt", "examples3.txt", 3)
 
 ##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
