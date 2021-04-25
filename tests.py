@@ -183,6 +183,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(remove_z3(1, [1,2], [1]), If(True, And(False, True), And(True, True)))
         self.assertEqual(remove_z3(1, [1,2], [2]), If(True, And(True, True), And(False, True)))
         self.assertEqual(remove_z3(2, [1,2], [2]), If(False, And(True, True), And(False, True)))
+        self.assertEqual(remove_z3(2, [2,2], [2]), If(True, And(True, True), And(True, True)))
         self.assertEqual(remove_z3(1, [], [Int("x")]), False)
         self.assertEqual(remove_z3(1, [1], [Int("x")]), False)
         self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), And(Int("x") == 1, True)))
@@ -197,6 +198,30 @@ class Tester(unittest.TestCase):
         self.assertEqual(m.decls()[0].name(), "z")
         self.assertEqual(m.decls()[1].name(), "y")
         self.assertEqual(m[m.decls()[0]], 3)
+        self.assertEqual(m[m.decls()[1]], 1)
+
+        s = Solver()
+
+        s.add(remove_z3(2, [2,2,2], [Int("y"), Int("z")]))
+
+        s.check()
+        m = s.model()
+
+        self.assertEqual(m.decls()[0].name(), "z")
+        self.assertEqual(m.decls()[1].name(), "y")
+        self.assertEqual(m[m.decls()[0]], 2)
+        self.assertEqual(m[m.decls()[1]], 2)
+
+        s = Solver()
+
+        s.add(remove_z3(2, [2,1,2], [Int("y"), Int("z")]))
+
+        s.check()
+        m = s.model()
+
+        self.assertEqual(m.decls()[0].name(), "z")
+        self.assertEqual(m.decls()[1].name(), "y")
+        self.assertEqual(m[m.decls()[0]], 2)
         self.assertEqual(m[m.decls()[1]], 1)
 
     def test_match_number_z3(self):

@@ -1,5 +1,4 @@
 from json import load
-import collections
 from z3 import *
 
 import sys
@@ -106,12 +105,12 @@ def match_number(guess, answer):
     return correct_letters
 
 
-def match_number_z3(guess, answer, o):
+def match_number_z3(guess, answer, o, next_name):
     
     def match_number_z3_acc(guess, answer, o, acc):
         if guess == []:
             return o == acc
-        Next = [Int(f"x{i}") for i in range(len(answer) - 1)]
+        Next = [Int(f"{next_name}-{i}") for i in range(len(answer) - 1)]
         return If(num_in_list_z3(guess[0], answer),
            And(remove_z3(guess[0], answer, Next),
                match_number_z3_acc(guess[1:], Next, o, acc + 1)),
@@ -184,14 +183,10 @@ def get_next_model(s):
         # Create a new constraint the blocks the current model
         block = []
         for d in m:
-            # d is a declaration
-            if d.arity() > 0:
-                raise Z3Exception("uninterpreted functions are not supported")
             # create a constant from declaration
             c = d()
-            if is_array(c) or c.sort().kind() == Z3_UNINTERPRETED_SORT:
-                raise Z3Exception("arrays and uninterpreted sorts are not supported")
             block.append(c != m[d])
+            
         s.add(Or(block))
 
         return result
@@ -220,22 +215,30 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
+
+    next_name_count = 0
     
     for guess in guesses:
 
 ##    guess = "have"
-        if guess != "sows":
-            continue
+##        if guess == "sows" or guess == "suds":
+##            continue
         print(str_to_list_nums(guess), secret_word, guesses[guess])
-        s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess]))
+        s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess], str(next_name_count)))
+
+        next_name_count += 1
         if guess == "sows":
             break
 
+##    for a in s.assertions():
+##        print(simplify
+
 ##    for m in get_models(s.assertions(), 5):
 
-##    print(s.check())
-##
-##    m = s.model()
+    s.check()
+    print(s.model())
+
+    m = s.model()
 ##
     first = True
 
