@@ -176,17 +176,17 @@ class Tester(unittest.TestCase):
         self.assertEqual(s, str_to_list_nums("hello"))
 
     def test_remove_z3(self):
-        self.assertEqual(remove_z3(1, [], []), True)
-        self.assertEqual(remove_z3(1, [1], []), True)
-        self.assertEqual(remove_z3(1, [1], [1]), False)
-        self.assertEqual(remove_z3(1, [], [1]), False)
-        self.assertEqual(remove_z3(1, [1,2], [1]), If(True, And(False, True), And(True, True)))
-        self.assertEqual(remove_z3(1, [1,2], [2]), If(True, And(True, True), And(False, True)))
-        self.assertEqual(remove_z3(2, [1,2], [2]), If(False, And(True, True), And(False, True)))
-        self.assertEqual(remove_z3(2, [2,2], [2]), If(True, And(True, True), And(True, True)))
-        self.assertEqual(remove_z3(1, [], [Int("x")]), False)
-        self.assertEqual(remove_z3(1, [1], [Int("x")]), False)
-        self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), And(Int("x") == 1, True)))
+##        self.assertEqual(remove_z3(1, [], []), True)
+##        self.assertEqual(remove_z3(1, [1], []), True)
+##        self.assertEqual(remove_z3(1, [1], [1]), False)
+##        self.assertEqual(remove_z3(1, [], [1]), False)
+##        self.assertEqual(remove_z3(1, [1,2], [1]), If(True, And(False, True), And(True, True)))
+##        self.assertEqual(remove_z3(1, [1,2], [2]), If(True, And(True, True), And(False, True)))
+##        self.assertEqual(remove_z3(2, [1,2], [2]), If(False, And(True, True), And(False, True)))
+##        self.assertEqual(remove_z3(2, [2,2], [2]), If(True, And(True, True), And(True, True)))
+##        self.assertEqual(remove_z3(1, [], [Int("x")]), False)
+##        self.assertEqual(remove_z3(1, [1], [Int("x")]), False)
+##        self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), And(Int("x") == 1, True)))
 
         s = Solver()
 
@@ -217,12 +217,20 @@ class Tester(unittest.TestCase):
         s.add(remove_z3(2, [2,1,2], [Int("y"), Int("z")]))
 
         s.check()
-        m = s.model()
+        
+        m = get_next_model(s)
 
-        self.assertEqual(m.decls()[0].name(), "z")
-        self.assertEqual(m.decls()[1].name(), "y")
+        self.assertEqual(m.decls()[0].name(), "y")
+        self.assertEqual(m.decls()[1].name(), "z")
         self.assertEqual(m[m.decls()[0]], 2)
         self.assertEqual(m[m.decls()[1]], 1)
+
+        m = get_next_model(s)
+
+        self.assertEqual(m.decls()[0].name(), "y")
+        self.assertEqual(m.decls()[1].name(), "z")
+        self.assertEqual(m[m.decls()[0]], 1)
+        self.assertEqual(m[m.decls()[1]], 2)
 
     def test_match_number_z3(self):
         pass

@@ -93,16 +93,20 @@ def char_to_num(ch):
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
-#checks to see how many matches there are between the guess and the answer, regardless
-#  of position, in O(n^2) time, works over lists of integers
 def match_number(guess, answer):
-    correct_letters = 0
-    temp_answer = answer[:]
-    for guess_letter in guess:
-        if guess_letter in temp_answer:
-            temp_answer.remove(guess_letter)
-            correct_letters += 1
-    return correct_letters
+
+    def match_number_acc(guess, answer, acc):
+        if guess == []:
+            return acc
+
+        if guess[0] in answer:                
+            Next = answer[:]
+            Next.remove(guess[0])
+            return match_number_acc(guess[1:], Next, acc + 1)
+        else:
+            return match_number_acc(guess[1:], answer, acc)
+
+    return match_number_acc(guess, answer, 0)
 
 
 def match_number_z3(guess, answer, o, next_name):
@@ -110,71 +114,20 @@ def match_number_z3(guess, answer, o, next_name):
     def match_number_z3_acc(guess, answer, o, acc):
         if guess == []:
             return o == acc
-        Next = [Int(f"{next_name}-{i}") for i in range(len(answer) - 1)]
+        Next = [Int(f"next{next_name}-{i}") for i in range(len(answer) - 1)]
         return If(num_in_list_z3(guess[0], answer),
            And(remove_z3(guess[0], answer, Next),
                match_number_z3_acc(guess[1:], Next, o, acc + 1)),
            match_number_z3_acc(guess[1:], answer, o, acc))
 
-    return match_number_z3_acc(guess, answer, o, 0)
-
-  
-##def remove(x, Ls):
-####    if simplify(Ls) == nil:
-####        return nil
-##
-##    if x == simplify(car(Ls)):
-##        return cdr(Ls)
-##    else:
-##        return cons(car(Ls), remove(x, cdr(Ls)))
-
-##def remove_z3(x, Ls, o):
-##    if Ls == []:
-##        return o == []
-##    
-##    return If(x == simplify(car(Ls)), o == cdr(Ls), o == cons(car(Ls), remove_z3(x, cdr(Ls))))
+    return match_number_z3_acc(sorted(guess), answer, o, 0)
 
 def remove_z3(x, Ls, o):
-    if o == []:
-        return o == []
     if len(Ls) <= 1:
         return o == []
     
-    return If(x == Ls[0], list_equal_z3(o, Ls[1:]),
+    return If(x == Ls[0], Or(list_equal_z3(o, Ls[1:]), remove_z3(x, Ls[1:], o[1:])),
               And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:])))
-
-
-#z3-ified remove function - constrains a list to not have the first instance of
-# the given integer, assumes that x is in ls
-##def remove_z3(x, Ls):
-##    if Ls == cons(x, nil):
-##        return nil
-##    return If(simplify(simplify(car(Ls)) == x), simplify(cdr(Ls)),
-##              cons(simplify(car(Ls)).as_long(), remove_z3(x, simplify(cdr(Ls)))))
-##
-## 
-##
-##def remove_z3_v2(x, Ls):
-##    return If(simplify(car(Ls)).as_long() == x, simplify(cdr(Ls)),
-##              cons(car(Ls), remove_z3(x, simplify(cdr(Ls)))))
-##
-## 
-##
-##
-###z3-ified match_number
-##def match_number_z3(guess, answer):
-##    correct_letters = 0
-##    temp_guess = guess[:]
-##    for answer_int in answer:
-##        If(num_in_list_z3(answer_int, temp_guess),
-##           temp_guess.remove())
-##    
-##    return correct_letters
-
-
-
-
-
 
 def get_next_model(s):
     if s.check() == sat:
@@ -194,11 +147,6 @@ def get_next_model(s):
     else:
         print("No more solutions")
 
-
-
-
-
-
 # integrates methods and generates constraints
 def main(allwords_fd, guesses_fd, sw_letters):
     allwords, guesses = get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters)
@@ -207,6 +155,7 @@ def main(allwords_fd, guesses_fd, sw_letters):
     
     s = Solver()
 
+    # each letter in the secret_word must be between 'a' and 'z'
     for ch in secret_word:
         s.add(ch >= 0, ch <= 25)
         
@@ -215,31 +164,13 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
-
     next_name_count = 0
     
     for guess in guesses:
-
-##    guess = "have"
-##        if guess == "sows" or guess == "suds":
-##            continue
-        print(str_to_list_nums(guess), secret_word, guesses[guess])
         s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess], str(next_name_count)))
 
         next_name_count += 1
-        if guess == "sows":
-            break
 
-##    for a in s.assertions():
-##        print(simplify
-
-##    for m in get_models(s.assertions(), 5):
-
-    s.check()
-    print(s.model())
-
-    m = s.model()
-##
     first = True
 
     while first or input().strip() == "":
@@ -259,12 +190,7 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
 
 if __name__ == '__main__':
-
-    main("allwords.txt", "example.txt", 4)
-
-
-##    print(simplify(If(car(cons(1, nil)) == 1, cons(2, nil), cons(3, nil))))
-    
+    main("allwords.txt", "examples2.txt", 5)
 
 ##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
