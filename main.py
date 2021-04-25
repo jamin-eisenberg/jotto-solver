@@ -2,6 +2,11 @@ from json import load
 import collections
 from z3 import *
 
+import sys
+
+# we're recurring through at most 77,000ish words
+sys.setrecursionlimit(10**5)
+
 # Iterative binary search
 # Returns the index of the element in the list if present, otherwise -1
 def binary_search(x, ls):
@@ -40,12 +45,6 @@ def list_in_lol_z3(x, ls):
         return False
     return Or(list_equal_z3(x, ls[0]), list_in_lol_z3(x, ls[1:]))
 
-# converts a flat Python list to a cons
-def list_to_cons(ls):
-    if ls == []:
-        return nil
-    return cons(ls[0], list_to_cons(ls[1:]))
-
 # returns a tuple with:
 #   a list of list of numbers 0-25 representing words loaded from a file with the given name
 #   a mapping of guesses to their match number loaded from a file with the given name
@@ -61,7 +60,7 @@ def get_allwords_and_guesses(allwords_fd, guesses_fd, sw_letters):
             
 
     allwords = list(map(lambda s: s.strip(), allwords))
-    allwords = list(filter(lambda s: len(s) == sw_letters, allwords))
+    allwords = list(filter(lambda s: len(s) == sw_letters and s.islower(), allwords))
 
     for i, s in enumerate(allwords):
         allwords[i] = str_to_list_nums(s)
@@ -107,32 +106,18 @@ def match_number(guess, answer):
     return correct_letters
 
 
-def match_number_z3_v2(guess, answer, o):
-    correct_letters = 0
-    temp_answer = answer[:]
-    for guess_letter in guess:
-        Next = [Int(f"x{i}") for i in range(len(temp_answer) - 1)]
-        if num_in_list_z3(guess_letter, temp_answer):
-            correct_letters += 1
-            remove_z3(guess_letter, temp_answer, Next)
-            temp_answer = Next
-    return o == correct_letters
-
-
 def match_number_z3(guess, answer, o):
-    match_number_z3_acc(guess, answer, o, 0)
-
-def match_number_z3_acc(guess, answer, o, acc):
-    if guess == []:
-        return o == acc
-    Next = [Int(f"x{i}") for i in range(len(guess) - 1)]
-    answer_v2 = [Int(f"y{i}") for i in range(len(answer))]
-    return If(num_in_list_z3(guess[0], answer),
-       And(remove_z3(guess[0], answer_v2, Next),
-           match_number_z3_acc(guess[1:], answer_v2, o, acc + 1)),
-       match_number_z3_acc(guess[1:], answer, o, acc))
     
+    def match_number_z3_acc(guess, answer, o, acc):
+        if guess == []:
+            return o == acc
+        Next = [Int(f"x{i}") for i in range(len(answer) - 1)]
+        return If(num_in_list_z3(guess[0], answer),
+           And(remove_z3(guess[0], answer, Next),
+               match_number_z3_acc(guess[1:], Next, o, acc + 1)),
+           match_number_z3_acc(guess[1:], answer, o, acc))
 
+    return match_number_z3_acc(guess, answer, o, 0)
 
   
 ##def remove(x, Ls):
@@ -192,7 +177,27 @@ def remove_z3(x, Ls, o):
 
 
 
+def get_next_model(s):
+    if s.check() == sat:
+        m = s.model()
+        result = m
+        # Create a new constraint the blocks the current model
+        block = []
+        for d in m:
+            # d is a declaration
+            if d.arity() > 0:
+                raise Z3Exception("uninterpreted functions are not supported")
+            # create a constant from declaration
+            c = d()
+            if is_array(c) or c.sort().kind() == Z3_UNINTERPRETED_SORT:
+                raise Z3Exception("arrays and uninterpreted sorts are not supported")
+            block.append(c != m[d])
+        s.add(Or(block))
 
+        return result
+    
+    else:
+        print("No more solutions")
 
 
 
@@ -207,29 +212,53 @@ def main(allwords_fd, guesses_fd, sw_letters):
     
     s = Solver()
 
-    # all of secret_word's letters must be between 'a' and 'z'
-##    for letter in secret_word:
-##        s.add(0 <= letter)
-##        s.add(letter <= 25)
-
+    for ch in secret_word:
+        s.add(ch >= 0, ch <= 25)
+        
     # secret_word must be in the dictionary
     s.add(list_in_lol_z3(secret_word, allwords))
 
     # for each guess:
     #    matchNumber(guess, secret_word) must be the guess's given number of matches
-##    for guess in guesses:
-##        s.add(match_number(str_to_list_nums(guess), secret_word) == guesses[guess])
+    
+    for guess in guesses:
 
-    print(s.check())
-    print(s.model())
+##    guess = "have"
+        if guess != "sows":
+            continue
+        print(str_to_list_nums(guess), secret_word, guesses[guess])
+        s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess]))
+        if guess == "sows":
+            break
+
+##    for m in get_models(s.assertions(), 5):
+
+##    print(s.check())
+##
+##    m = s.model()
+##
+    first = True
+
+    while first or input().strip() == "":
+        first = False
+        
+        m = get_next_model(s)
+            
+        ans = [ -1 for i in range(sw_letters) ]
+
+        for d in m.decls():
+            if "letter" in d.name():
+                ans[int(d.name()[7:])] = m[d].as_long()
+
+        print(list_nums_to_str(ans))
+
     
 
 
 if __name__ == '__main__':
 
-##    main("exampleWords.txt", "example.txt", 4)
+    main("allwords.txt", "example.txt", 4)
 
-    pass
 
 ##    print(simplify(If(car(cons(1, nil)) == 1, cons(2, nil), cons(3, nil))))
     

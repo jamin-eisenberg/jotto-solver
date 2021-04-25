@@ -12,31 +12,31 @@ class Tester(unittest.TestCase):
         self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
         self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
 
-##    def test_num_in_list_z3(self):
-##        self.assertEqual(num_in_list_z3(1, nil), False)
-##        self.assertEqual(simplify(num_in_list_z3(1, cons(1, nil))), True)
-##        self.assertEqual(simplify(num_in_list_z3(1, cons(1, cons(2, nil)))), True)
-##        self.assertEqual(simplify(num_in_list_z3(2, cons(1, cons(2, nil)))), True)
-##        self.assertEqual(simplify(num_in_list_z3(1, cons(2, cons(3, cons(4, nil))))), False)
-##        self.assertEqual(num_in_list_z3(Int("x"), nil), False)
-##
-##        s = Solver()
-##
-##        x = Int("x")
-##        s.add(num_in_list_z3(x, list_to_cons([1,2,3,4,5])))
-##
-##        self.assertEqual(s.check(), sat)
-##        s.add(x == 3)
-##        self.assertEqual(s.check(), sat)
-##
-##        s = Solver()
-##
-##        x = Int("x")
-##        s.add(num_in_list_z3(x, list_to_cons([1,2,3,4,5])))
-##
-##        self.assertEqual(s.check(), sat)
-##        s.add(x == 0)
-##        self.assertEqual(s.check(), unsat)
+    def test_num_in_list_z3(self):
+        self.assertEqual(num_in_list_z3(1, []), False)
+        self.assertEqual(simplify(num_in_list_z3(1, [1])), True)
+        self.assertEqual(simplify(num_in_list_z3(1, [1, 2])), True)
+        self.assertEqual(simplify(num_in_list_z3(2, [1, 2])), True)
+        self.assertEqual(simplify(num_in_list_z3(1, [2, 3, 4])), False)
+        self.assertEqual(num_in_list_z3(Int("x"), []), False)
+
+        s = Solver()
+
+        x = Int("x")
+        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x == 3)
+        self.assertEqual(s.check(), sat)
+
+        s = Solver()
+
+        x = Int("x")
+        s.add(num_in_list_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x == 0)
+        self.assertEqual(s.check(), unsat)
 
     def test_list_equal_z3(self):
         self.assertEqual(list_equal_z3([], []), True)
@@ -90,11 +90,6 @@ class Tester(unittest.TestCase):
         s.add(x[4] == 3)
         self.assertEqual(s.check(), unsat)
 
-##    def test_list_to_cons(self):
-##        self.assertEqual(list_to_cons([]), nil)
-##        self.assertEqual(list_to_cons([1]), cons(1, nil))
-##        self.assertEqual(list_to_cons([1, 2]), cons(1, cons(2, nil)))
-##        self.assertEqual(list_to_cons([1, 2, 3]), cons(1, cons(2, cons(3, nil))))
 
     def test_get_allwords_and_guesses(self):
         self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "example.txt", 4),
@@ -181,16 +176,16 @@ class Tester(unittest.TestCase):
         self.assertEqual(s, str_to_list_nums("hello"))
 
     def test_remove_z3(self):
-##        self.assertEqual(remove_z3(1, [], []), True)
-##        self.assertEqual(remove_z3(1, [1], []), If(True, True, True))
-##        self.assertEqual(remove_z3(1, [1], [1]), If(True, False, True))
-##        self.assertEqual(remove_z3(1, [], [1]), False)
-##        self.assertEqual(remove_z3(1, [1,2], [1]), If(True, And(False, True), If(False, True, True)))
-##        self.assertEqual(remove_z3(1, [1,2], [2]), If(True, And(True, True), If(False, True, True)))
-##        self.assertEqual(remove_z3(2, [1,2], [2]), If(False, And(True, True), If(True, True, True)))
-##        self.assertEqual(remove_z3(1, [], [Int("x")]), False)
-##        self.assertEqual(remove_z3(1, [1], [Int("x")]), If(True, False, True))
-##        self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), If(False, True, True)))
+        self.assertEqual(remove_z3(1, [], []), True)
+        self.assertEqual(remove_z3(1, [1], []), True)
+        self.assertEqual(remove_z3(1, [1], [1]), False)
+        self.assertEqual(remove_z3(1, [], [1]), False)
+        self.assertEqual(remove_z3(1, [1,2], [1]), If(True, And(False, True), And(True, True)))
+        self.assertEqual(remove_z3(1, [1,2], [2]), If(True, And(True, True), And(False, True)))
+        self.assertEqual(remove_z3(2, [1,2], [2]), If(False, And(True, True), And(False, True)))
+        self.assertEqual(remove_z3(1, [], [Int("x")]), False)
+        self.assertEqual(remove_z3(1, [1], [Int("x")]), False)
+        self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), And(Int("x") == 1, True)))
 
         s = Solver()
 
@@ -203,6 +198,18 @@ class Tester(unittest.TestCase):
         self.assertEqual(m.decls()[1].name(), "y")
         self.assertEqual(m[m.decls()[0]], 3)
         self.assertEqual(m[m.decls()[1]], 1)
+
+    def test_match_number_z3(self):
+        pass
+##        s = Solver()
+##
+##        s.add(match_number_z3([1,2,3], [Int("a"), Int("b"), Int("c")], 2))
+##
+##
+##        print(s.assertions())
+##        while s.check() == sat:
+##            print (s.model())
+##            s.add(Or(Int(a != s.model()[a], b != s.model()[b]))
 
         
 
