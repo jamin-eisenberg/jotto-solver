@@ -23,9 +23,10 @@ def binary_search(x, ls):
 
 # generates a constraint for the given number being in the list of numbers
 def num_in_list_z3(x, ls):
-    if simplify(ls) == nil:
+    print("ls: ", ls)
+    if ls == []:
         return False
-    return Or(simplify(car(ls)) == x, num_in_list_z3(x, cdr(ls)))
+    return Or(ls[0] == x, num_in_list_z3(x, ls[1:]))
 
 # generates a constraint for list equality between the given lists
 def list_equal_z3(ls1, ls2):
@@ -106,9 +107,33 @@ def match_number(guess, answer):
     return correct_letters
 
 
+def match_number_z3_v2(guess, answer, o):
+    correct_letters = 0
+    temp_answer = answer[:]
+    for guess_letter in guess:
+        Next = [Int(f"x{i}") for i in range(len(temp_answer) - 1)]
+        if num_in_list_z3(guess_letter, temp_answer):
+            correct_letters += 1
+            remove_z3(guess_letter, temp_answer, Next)
+            temp_answer = Next
+    return o == correct_letters
 
 
+def match_number_z3(guess, answer, o):
+    match_number_z3_acc(guess, answer, o, 0)
 
+def match_number_z3_acc(guess, answer, o, acc):
+    print(guess)
+    if guess == []:
+        return o == acc
+    Next = [Int(f"x{i}") for i in range(len(guess) - 1)]
+    return If(num_in_list_z3(guess[0], answer),
+       match_number_z3_acc(guess[1:], remove_z3(guess[0], answer, Next), o, acc + 1),
+       match_number_z3_acc(guess[1:], answer, o, acc))
+    
+
+
+  
 ##def remove(x, Ls):
 ####    if simplify(Ls) == nil:
 ####        return nil
@@ -201,9 +226,7 @@ if __name__ == '__main__':
 
 ##    main("exampleWords.txt", "example.txt", 4)
 
-    
-
-    print(simplify(nil == nil))
+    pass
 
 ##    print(simplify(If(car(cons(1, nil)) == 1, cons(2, nil), cons(3, nil))))
     
