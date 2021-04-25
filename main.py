@@ -23,10 +23,10 @@ def binary_search(x, ls):
 
 # generates a constraint for the given number being in the list of numbers
 def num_in_list_z3(x, ls):
-    print("ls: ", ls)
-    if ls == []:
+    ls_copy = ls[:]
+    if ls_copy == []:
         return False
-    return Or(ls[0] == x, num_in_list_z3(x, ls[1:]))
+    return Or(ls_copy[0] == x, num_in_list_z3(x, ls_copy[1:]))
 
 # generates a constraint for list equality between the given lists
 def list_equal_z3(ls1, ls2):
@@ -123,12 +123,13 @@ def match_number_z3(guess, answer, o):
     match_number_z3_acc(guess, answer, o, 0)
 
 def match_number_z3_acc(guess, answer, o, acc):
-    print(guess)
     if guess == []:
         return o == acc
     Next = [Int(f"x{i}") for i in range(len(guess) - 1)]
+    answer_v2 = [Int(f"y{i}") for i in range(len(answer))]
     return If(num_in_list_z3(guess[0], answer),
-       match_number_z3_acc(guess[1:], remove_z3(guess[0], answer, Next), o, acc + 1),
+       And(remove_z3(guess[0], answer_v2, Next),
+           match_number_z3_acc(guess[1:], answer_v2, o, acc + 1)),
        match_number_z3_acc(guess[1:], answer, o, acc))
     
 
@@ -150,7 +151,9 @@ def match_number_z3_acc(guess, answer, o, acc):
 ##    return If(x == simplify(car(Ls)), o == cdr(Ls), o == cons(car(Ls), remove_z3(x, cdr(Ls))))
 
 def remove_z3(x, Ls, o):
-    if len(Ls) == 1:
+    if o == []:
+        return o == []
+    if len(Ls) <= 1:
         return o == []
     
     return If(x == Ls[0], list_equal_z3(o, Ls[1:]),
