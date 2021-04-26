@@ -40,5 +40,5 @@ Once Z3Py is installed, you should be able to run main.py. Before you do that, t
 
 When you have a guess history, you can run main.py. It will prompt you to enter a location to find your guesses. Enter the location you saved the guesses to when using the guess_generator.
 
-After you've entered this, the program should give you a word that satisfies the guesses you've provided according to the rules of the game. If it does not, there are no solutions. This means that the word-holder picked a word that is not in the dictionary or they made a mistake in assigning numbers to guesses. If you do get a word, press enter to get another word that satisfies the constraints. You can do this until there are no more solutions left, or you can type anything and press enter to exit.
+After you've entered this, the program should give you a word that satisfies the guesses you've provided according to the rules of the game. If it does not, there are no solutions. This means that the word-holder picked a word that is not in the extensive provided dictionary or they made a mistake in assigning numbers to guesses. If you do get a word, press enter to get another word that satisfies the constraints. You can do this until there are no more solutions left, or you can type anything and press enter to exit.
 
