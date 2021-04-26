@@ -3,8 +3,6 @@ from z3 import *
 
 import sys
 
-# TODO: tests, README update
-
 # In signatures, "int"s for methods with z3 in the name can mean either concrete ints or Z3Py's Int type
 
 # a 1-string is a string of length 1, used to represent a letter
