@@ -93,22 +93,6 @@ def char_to_num(ch):
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
-def match_number(guess, answer):
-
-    def match_number_acc(guess, answer, acc):
-        if guess == []:
-            return acc
-
-        if guess[0] in answer:                
-            Next = answer[:]
-            Next.remove(guess[0])
-            return match_number_acc(guess[1:], Next, acc + 1)
-        else:
-            return match_number_acc(guess[1:], answer, acc)
-
-    return match_number_acc(guess, answer, 0)
-
-
 def match_number_z3(guess, answer, o, next_name):
     
     def match_number_z3_acc(guess, answer, o, acc):
@@ -122,13 +106,14 @@ def match_number_z3(guess, answer, o, next_name):
 
     return match_number_z3_acc(guess, answer, o, 0)
 
-def remove_z3(x, Ls, o):
-    if len(Ls) <= 1:
+def remove_z3(x, ls, o):
+    if len(ls) <= 1:
         return o == []
     
-    return If(x == Ls[0], Or(list_equal_z3(o, Ls[1:]), And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:]))),
-              And(o[0] == Ls[0], remove_z3(x, Ls[1:], o[1:])))
+    return If(x == ls[0], Or(list_equal_z3(o, ls[1:]), And(o[0] == ls[0], remove_z3(x, ls[1:], o[1:]))),
+              And(o[0] == ls[0], remove_z3(x, ls[1:], o[1:])))
 
+# derived from https://stackoverflow.com/questions/11867611/z3py-checking-all-solutions-for-equation
 def get_next_model(s):
     if s.check() == sat:
         m = s.model()
@@ -201,7 +186,7 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
 
 if __name__ == '__main__':
-    main("allwords.txt", "examples3.txt", 3)
+    main("allwords.txt", "example.txt", 4)
 
 ##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
