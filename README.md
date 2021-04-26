@@ -4,11 +4,7 @@ SMT Constraint Generator for Jotto
 We have written a Python program to convert a game state of Jotto into a satisfiability modulo theory (SMT) problem, the solution of which will tell us which words fit the 
 restrictions imposed by previous guesses. This implementation generates constraints for a Jotto game with no duplicates, meaning that neither the guesses nor the secret word can have any duplicate letters (like "foo").
 
-First, it's important to understand the game of Jotto. As a reference, it's fairly similar to
-mastermind, but with words. When played with humans, there is a guesser and a word-holder. The
-word-holder discloses the length of their word to the guesser. The guesser then guesses a series
-of English words of the given length. The word-holder responds to each guess with a number corresponding
-to how many letters the guessed word has in common with their word. For example:
+The game Jotto resembles Mastermind, but uses words. The players include a guesser and a word-holder. The word-holder discloses the length of their word to the guesser. The guesser then guesses a series of English words of the given length. The word-holder responds to each guess with a number corresponding to how many letters the guessed word has in common with their secret word. For example:
 
 Word-holder: 4 (thinking of "dogs")  
 Guesser: have  
@@ -26,11 +22,11 @@ Word-holder: 3
 Guesser: dogs  
 Word-holder: You got it. Good job, friend!  
 
-Given a guess history like a subset of the example above, the end result of our program will be a list of words that "passes" all of the parts of the history. For
+Given a guess history like a subset of the example above, the program will return a list of words that "pass" all of the parts of the history and constraints. For
 example, given the history above, the program would return "dogs" 
 (or "pwnk" if it's in the dictionary - because that would give all of the same results). The core of our project is converting the guess history (and our word list) into an SMT problem.
 
-Our initial searches revealed no prior SMT solving of this game. Algorithms have been developed to make
+Our searches revealed no prior SMT solution of this game. Algorithms have been developed to make
 guesses, but as far as we can tell, no one has done what we have.
 
 # Use Instructions
