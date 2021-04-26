@@ -2,15 +2,34 @@ import unittest
 from main import *
 
 class Tester(unittest.TestCase):
-    
-    def test_binary_search(self):
-        self.assertEqual(binary_search(1, []), -1)
-        self.assertEqual(binary_search('', []), -1)
-        self.assertEqual(binary_search(1, [1]), 0)
-        self.assertEqual(binary_search(1, [0]), -1)
-        self.assertEqual(binary_search(2, [1, 2, 3]), 1)
-        self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
-        self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
+
+    def test_get_possible_answers(self):
+        pass
+
+    def test_list_equal_z3(self):
+        self.assertEqual(list_equal_z3([], []), True)
+        self.assertEqual(list_equal_z3([1], []), False)
+        self.assertEqual(list_equal_z3([], [2]), False)
+        self.assertEqual(list_equal_z3([1], [1]), And(True,True))
+        self.assertEqual(list_equal_z3([1,2,3], [1,2,3]), And(True,And(True,And(True,True))))
+        self.assertEqual(list_equal_z3([1], [2]), And(False, True))
+        self.assertEqual(list_equal_z3([1], [1,2]), And(True, False))
+        self.assertEqual(list_equal_z3([Int("x")], [1]), And(Int("x") == 1, True))
+        self.assertEqual(list_equal_z3([Int("x")], [1,2]), And(Int("x") == 1, False))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1]), And(Int("x") == 1, False))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2]), And(Int("x") == 1,And(Int("y") == 2, True)))
+        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2,3]), And(Int("x") == 1,And(Int("y") == 2, False)))
+
+        s = Solver()
+
+        x = [ Int(f"x_{i}") for i in range(5) ]
+        s.add(list_equal_z3(x, [1,2,3,4,5]))
+
+        self.assertEqual(s.check(), sat)
+        s.add(x[0] == 1)
+        self.assertEqual(s.check(), sat)
+        s.add(x[1] == 3)
+        self.assertEqual(s.check(), unsat)
 
     def test_num_in_list_z3(self):
         self.assertEqual(num_in_list_z3(1, []), False)
@@ -36,31 +55,6 @@ class Tester(unittest.TestCase):
 
         self.assertEqual(s.check(), sat)
         s.add(x == 0)
-        self.assertEqual(s.check(), unsat)
-
-    def test_list_equal_z3(self):
-        self.assertEqual(list_equal_z3([], []), True)
-        self.assertEqual(list_equal_z3([1], []), False)
-        self.assertEqual(list_equal_z3([], [2]), False)
-        self.assertEqual(list_equal_z3([1], [1]), And(True,True))
-        self.assertEqual(list_equal_z3([1,2,3], [1,2,3]), And(True,And(True,And(True,True))))
-        self.assertEqual(list_equal_z3([1], [2]), And(False, True))
-        self.assertEqual(list_equal_z3([1], [1,2]), And(True, False))
-        self.assertEqual(list_equal_z3([Int("x")], [1]), And(Int("x") == 1, True))
-        self.assertEqual(list_equal_z3([Int("x")], [1,2]), And(Int("x") == 1, False))
-        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1]), And(Int("x") == 1, False))
-        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2]), And(Int("x") == 1,And(Int("y") == 2, True)))
-        self.assertEqual(list_equal_z3([Int("x"),Int("y")], [1,2,3]), And(Int("x") == 1,And(Int("y") == 2, False)))
-
-        s = Solver()
-
-        x = [ Int(f"x_{i}") for i in range(5) ]
-        s.add(list_equal_z3(x, [1,2,3,4,5]))
-
-        self.assertEqual(s.check(), sat)
-        s.add(x[0] == 1)
-        self.assertEqual(s.check(), sat)
-        s.add(x[1] == 3)
         self.assertEqual(s.check(), unsat)
 
     def test_list_in_lol_z3(self):
@@ -90,16 +84,31 @@ class Tester(unittest.TestCase):
         s.add(x[4] == 3)
         self.assertEqual(s.check(), unsat)
 
+    def test_match_number_z3(self):
+        pass
+
+    def test_get_next_model(self):
+        #???????????????????
+        pass
 
     def test_get_allwords_and_guesses(self):
-        self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "example.txt", 4),
+        self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "examples.txt"),
                         ([[2, 14, 20, 15], [3, 14, 6, 18], [3, 14, 13, 18],
                                  [3, 14, 18, 19], [7, 0, 21, 4], [17, 14, 3, 18],
                                  [18, 11, 8, 15], [18, 14, 22, 18], [18, 20, 3, 18]],
-                         {'have': 0, 'slip': 1, 'coup': 1, 'sows': 2, 'suds': 2, 'dost': 3, 'rods': 3, 'dons': 3, 'dogs': 4}))
-        self.assertRaises(ValueError, get_allwords_and_guesses, "exampleWordsBad.txt", "example.txt", 4)
-        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleordsBad.txt", "example.txt", 4)
-        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleWordsBad.txt", "exmple.txt", 4)
+                         {'have': 0, 'slip': 1, 'coup': 1, 'dost': 3, 'rods': 3, 'dons': 3}, 4))
+        self.assertRaises(ValueError, get_allwords_and_guesses, "exampleWordsBad.txt", "examples.txt")
+        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleordsBad.txt", "examples.txt")
+        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleWordsBad.txt", "exmples.txt")
+    
+    def test_binary_search(self):
+        self.assertEqual(binary_search(1, []), -1)
+        self.assertEqual(binary_search('', []), -1)
+        self.assertEqual(binary_search(1, [1]), 0)
+        self.assertEqual(binary_search(1, [0]), -1)
+        self.assertEqual(binary_search(2, [1, 2, 3]), 1)
+        self.assertEqual(binary_search("hello", ["goodbye", "hello", "former", "raise"]), 1)
+        self.assertEqual(binary_search("hello", ["goodbye", "hell", "former", "raise"]), -1)
 
     def test_str_to_list_nums(self):
         self.assertEqual(str_to_list_nums(""), [])
@@ -128,7 +137,7 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, list_nums_to_str, [26])
         self.assertRaises(ValueError, list_nums_to_str, [1, 2, 4, 8, 16, 32, 64])
 
-    def test_get_char_from_num(self):
+    def test_num_to_char(self):
         self.assertEqual(num_to_char(0), 'a')
         self.assertEqual(num_to_char(1), 'b')
         self.assertEqual(num_to_char(12), 'm')
@@ -138,7 +147,7 @@ class Tester(unittest.TestCase):
         self.assertRaises(ValueError, num_to_char, 26)
         self.assertRaises(ValueError, num_to_char, 97)
 
-    def test_get_num_from_char(self):
+    def test_char_to_num(self):
         self.assertEqual(char_to_num('a'), 0)
         self.assertEqual(char_to_num('b'), 1)
         self.assertEqual(char_to_num('m'), 12)
@@ -150,32 +159,32 @@ class Tester(unittest.TestCase):
         self.assertRaises(TypeError, char_to_num, '')
         self.assertRaises(TypeError, char_to_num, 'hi')
 
-    def test_match_number(self):
-        self.assertEqual(match_number(str_to_list_nums("cats"), str_to_list_nums("dogs")), 1)
-        self.assertEqual(match_number(str_to_list_nums("spool"), str_to_list_nums("cools")), 4)
-        self.assertEqual(match_number(str_to_list_nums("rose"), str_to_list_nums("rats")), 2)
-        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("cat")), 0)
-        self.assertEqual(match_number(str_to_list_nums("have"), str_to_list_nums("dogs")), 0)
-        self.assertEqual(match_number(str_to_list_nums("slip"), str_to_list_nums("dogs")), 1)
-        self.assertEqual(match_number(str_to_list_nums("coup"), str_to_list_nums("dogs")), 1)
-        self.assertEqual(match_number(str_to_list_nums("sows"), str_to_list_nums("dogs")), 2)
-        self.assertEqual(match_number(str_to_list_nums("suds"), str_to_list_nums("dogs")), 2)
-        self.assertEqual(match_number(str_to_list_nums("dost"), str_to_list_nums("dogs")), 3)
-        self.assertEqual(match_number(str_to_list_nums("rods"), str_to_list_nums("dogs")), 3)
-        self.assertEqual(match_number(str_to_list_nums("dons"), str_to_list_nums("dogs")), 3)
-        self.assertEqual(match_number(str_to_list_nums("dogs"), str_to_list_nums("dogs")), 4)
-        self.assertEqual(match_number(str_to_list_nums("error"), str_to_list_nums("roars")), 3)
-        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("h")), 0)
-        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("d")), 1)
-        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("")), 0)
-        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("a")), 0)
-        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("dogs")), 3)
-
-        s = str_to_list_nums("hello")
-        self.assertEqual(match_number(s[:],s), 5)
-        self.assertEqual(s, str_to_list_nums("hello"))
-
-    def test_remove_z3(self):
+##    def test_match_number(self):
+##        self.assertEqual(match_number(str_to_list_nums("cats"), str_to_list_nums("dogs")), 1)
+##        self.assertEqual(match_number(str_to_list_nums("spool"), str_to_list_nums("cools")), 4)
+##        self.assertEqual(match_number(str_to_list_nums("rose"), str_to_list_nums("rats")), 2)
+##        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("cat")), 0)
+##        self.assertEqual(match_number(str_to_list_nums("have"), str_to_list_nums("dogs")), 0)
+##        self.assertEqual(match_number(str_to_list_nums("slip"), str_to_list_nums("dogs")), 1)
+##        self.assertEqual(match_number(str_to_list_nums("coup"), str_to_list_nums("dogs")), 1)
+##        self.assertEqual(match_number(str_to_list_nums("sows"), str_to_list_nums("dogs")), 2)
+##        self.assertEqual(match_number(str_to_list_nums("suds"), str_to_list_nums("dogs")), 2)
+##        self.assertEqual(match_number(str_to_list_nums("dost"), str_to_list_nums("dogs")), 3)
+##        self.assertEqual(match_number(str_to_list_nums("rods"), str_to_list_nums("dogs")), 3)
+##        self.assertEqual(match_number(str_to_list_nums("dons"), str_to_list_nums("dogs")), 3)
+##        self.assertEqual(match_number(str_to_list_nums("dogs"), str_to_list_nums("dogs")), 4)
+##        self.assertEqual(match_number(str_to_list_nums("error"), str_to_list_nums("roars")), 3)
+##        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("h")), 0)
+##        self.assertEqual(match_number(str_to_list_nums("d"), str_to_list_nums("d")), 1)
+##        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("")), 0)
+##        self.assertEqual(match_number(str_to_list_nums(""), str_to_list_nums("a")), 0)
+##        self.assertEqual(match_number(str_to_list_nums("dog"), str_to_list_nums("dogs")), 3)
+##
+##        s = str_to_list_nums("hello")
+##        self.assertEqual(match_number(s[:],s), 5)
+##        self.assertEqual(s, str_to_list_nums("hello"))
+##
+##    def test_remove_z3(self):
 ##        self.assertEqual(remove_z3(1, [], []), True)
 ##        self.assertEqual(remove_z3(1, [1], []), True)
 ##        self.assertEqual(remove_z3(1, [1], [1]), False)
@@ -187,53 +196,52 @@ class Tester(unittest.TestCase):
 ##        self.assertEqual(remove_z3(1, [], [Int("x")]), False)
 ##        self.assertEqual(remove_z3(1, [1], [Int("x")]), False)
 ##        self.assertEqual(remove_z3(1, [1, 2], [Int("x")]), If(True, And(Int("x") == 2, True), And(Int("x") == 1, True)))
+##
+##        s = Solver()
+##
+##        s.add(remove_z3(2, [1,2,3], [Int("y"), Int("z")]))
+##
+##        s.check()
+##        m = s.model()
+##
+##        self.assertEqual(m.decls()[0].name(), "z")
+##        self.assertEqual(m.decls()[1].name(), "y")
+##        self.assertEqual(m[m.decls()[0]], 3)
+##        self.assertEqual(m[m.decls()[1]], 1)
+##
+##        s = Solver()
+##
+##        s.add(remove_z3(2, [2,2,2], [Int("y"), Int("z")]))
+##
+##        s.check()
+##        m = s.model()
+##
+##        self.assertEqual(m.decls()[0].name(), "z")
+##        self.assertEqual(m.decls()[1].name(), "y")
+##        self.assertEqual(m[m.decls()[0]], 2)
+##        self.assertEqual(m[m.decls()[1]], 2)
+##
+##        s = Solver()
+##
+##        s.add(remove_z3(2, [2,1,2], [Int("y"), Int("z")]))
+##
+##        s.check()
+##        
+##        m = get_next_model(s)
+##
+##        self.assertEqual(m.decls()[0].name(), "y")
+##        self.assertEqual(m.decls()[1].name(), "z")
+##        self.assertEqual(m[m.decls()[0]], 2)
+##        self.assertEqual(m[m.decls()[1]], 1)
+##
+##        m = get_next_model(s)
+##
+##        self.assertEqual(m.decls()[0].name(), "y")
+##        self.assertEqual(m.decls()[1].name(), "z")
+##        self.assertEqual(m[m.decls()[0]], 1)
+##        self.assertEqual(m[m.decls()[1]], 2)
 
-        s = Solver()
 
-        s.add(remove_z3(2, [1,2,3], [Int("y"), Int("z")]))
-
-        s.check()
-        m = s.model()
-
-        self.assertEqual(m.decls()[0].name(), "z")
-        self.assertEqual(m.decls()[1].name(), "y")
-        self.assertEqual(m[m.decls()[0]], 3)
-        self.assertEqual(m[m.decls()[1]], 1)
-
-        s = Solver()
-
-        s.add(remove_z3(2, [2,2,2], [Int("y"), Int("z")]))
-
-        s.check()
-        m = s.model()
-
-        self.assertEqual(m.decls()[0].name(), "z")
-        self.assertEqual(m.decls()[1].name(), "y")
-        self.assertEqual(m[m.decls()[0]], 2)
-        self.assertEqual(m[m.decls()[1]], 2)
-
-        s = Solver()
-
-        s.add(remove_z3(2, [2,1,2], [Int("y"), Int("z")]))
-
-        s.check()
-        
-        m = get_next_model(s)
-
-        self.assertEqual(m.decls()[0].name(), "y")
-        self.assertEqual(m.decls()[1].name(), "z")
-        self.assertEqual(m[m.decls()[0]], 2)
-        self.assertEqual(m[m.decls()[1]], 1)
-
-        m = get_next_model(s)
-
-        self.assertEqual(m.decls()[0].name(), "y")
-        self.assertEqual(m.decls()[1].name(), "z")
-        self.assertEqual(m[m.decls()[0]], 1)
-        self.assertEqual(m[m.decls()[1]], 2)
-
-    def test_match_number_z3(self):
-        pass
 ##        s = Solver()
 ##
 ##        s.add(match_number_z3([1,2,3], [Int("a"), Int("b"), Int("c")], 2))
