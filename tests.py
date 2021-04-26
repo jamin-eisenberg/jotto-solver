@@ -109,7 +109,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(simplify(match_number_z3([1, 2, 3], [3, 1, 2], 3)), True)
         
         self.assertEqual(simplify(match_number_z3([1], [Int('a')], 1)), Int('a') == 1)
-        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 2)), And(Or(Int('a') == 1, Int('b') == 1), Or(Int('b') == 2, Int('a') == 2)))
+        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 2)), simplify(And(Or(Int('a') == 1, Int('b') == 1), Or(Int('b') == 2, Int('a') == 2))))
         self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1) == Not(Or(Int('b') == 2, Int('a') == 2))))
         self.assertEqual(simplify(match_number_z3([1], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1)))
         
