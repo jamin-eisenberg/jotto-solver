@@ -1,1 +1,1 @@
-{"have": 0, "slip": 1, "coup": 1, "sows": 2, "suds": 2, "dost": 3, "rods": 3, "dons": 3}
+{"have": 0, "slip": 1, "coup": 1, "suds": 2, "dost": 3, "rods": 3, "dons": 3}
