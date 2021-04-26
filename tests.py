@@ -1,10 +1,23 @@
 import unittest
 from main import *
 
+import sys
+
 class Tester(unittest.TestCase):
 
     def test_get_possible_answers(self):
-        pass
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples.txt")), set(["dogs", "gods", "bods", "dobs", "mods"]))
+        self.assertEqual(get_possible_answers("exampleWords.txt", "examples.txt"), ["dogs"])
+        self.assertEqual(get_possible_answers("allwords_nodups.txt", "examples2.txt"), ["magic"])
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples3.txt")), set(["was", "saw"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples4.txt")), set(["rats", "arts", "star", "cart", "tars"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples5.txt")), set(["kin", "yin", "ink"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "spesner.txt")), set(["spam", "maps", "amps", "tamp", "trek", "take", "teak", "sake"]))
+
+        self.assertRaises(ValueError, get_possible_answers, "exampleWords.txt", "examples6.txt")
+        self.assertRaises(ValueError, get_possible_answers, "exampleWordsBad.txt", "examples.txt")
+        self.assertRaises(FileNotFoundError, get_possible_answers, "exampleordsBad.txt", "examples.txt")
+        self.assertRaises(FileNotFoundError, get_possible_answers, "exampleWordsBad.txt", "exmples.txt")
 
     def test_list_equal_z3(self):
         self.assertEqual(list_equal_z3([], []), True)
@@ -85,11 +98,34 @@ class Tester(unittest.TestCase):
         self.assertEqual(s.check(), unsat)
 
     def test_match_number_z3(self):
-        pass
-
-    def test_get_next_model(self):
-        #???????????????????
-        pass
+        self.assertEqual(match_number_z3([], [], 0), True)
+        self.assertEqual(match_number_z3([], [], 1), False)
+        self.assertEqual(match_number_z3([], [1], 0), True)
+        self.assertEqual(simplify(match_number_z3([1], [1], 1)), True)
+        self.assertEqual(simplify(match_number_z3([1], [1], 0)), False)
+        self.assertEqual(simplify(match_number_z3([2, 1], [1], 1)), True)
+        self.assertEqual(simplify(match_number_z3([1, 2], [2, 1], 2)), True)
+        self.assertEqual(simplify(match_number_z3([1, 2], [2, 1], 1)), False)
+        self.assertEqual(simplify(match_number_z3([1, 2, 3], [3, 1, 2], 3)), True)
+        
+        self.assertEqual(simplify(match_number_z3([1], [Int('a')], 1)), Int('a') == 1)
+        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 2)), And(Or(Int('a') == 1, Int('b') == 1), Or(Int('b') == 2, Int('a') == 2)))
+        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1) == Not(Or(Int('b') == 2, Int('a') == 2))))
+        self.assertEqual(simplify(match_number_z3([1], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1)))
+        
+        s = Solver()
+        x = [ Int(f"x_{i}") for i in range(5) ]
+        s.add(match_number_z3(x, [1, 2, 3, 4, 5], 3))
+        self.assertEqual(s.check(), sat)
+        
+        s.add(x[0] == 4)
+        self.assertEqual(s.check(), sat)
+        s.add(x[1] == 1)
+        self.assertEqual(s.check(), sat)
+        s.add(x[2] == 5)
+        self.assertEqual(s.check(), sat)
+        s.add(x[3] == 2)
+        self.assertEqual(s.check(), unsat)
 
     def test_get_allwords_and_guesses(self):
         self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "examples.txt"),
@@ -255,4 +291,6 @@ class Tester(unittest.TestCase):
         
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(10**5)
+
     unittest.main()
