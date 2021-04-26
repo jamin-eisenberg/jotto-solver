@@ -85,6 +85,36 @@ class Tester(unittest.TestCase):
         self.assertEqual(s.check(), unsat)
 
     def test_match_number_z3(self):
+        self.assertEqual(match_number_z3([], [], 0), True)
+        self.assertEqual(match_number_z3([], [], 1), False)
+        self.assertEqual(match_number_z3([], [1], 0), True)
+        self.assertEqual(simplify(match_number_z3([1], [1], 1)), True)
+        self.assertEqual(simplify(match_number_z3([1], [1], 0)), False)
+        self.assertEqual(simplify(match_number_z3([2, 1], [1], 1)), True)
+        self.assertEqual(simplify(match_number_z3([1, 2], [2, 1], 2)), True)
+        self.assertEqual(simplify(match_number_z3([1, 2], [2, 1], 1)), False)
+        self.assertEqual(simplify(match_number_z3([1, 2, 3], [3, 1, 2], 3)), True)
+        
+        self.assertEqual(simplify(match_number_z3([1], [Int('a')], 1)), Int('a') == 1)
+        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 2)), And(Or(Int('a') == 1, Int('b') == 1), Or(Int('b') == 2, Int('a') == 2)))
+        self.assertEqual(simplify(match_number_z3([1, 2], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1) == Not(Or(Int('b') == 2, Int('a') == 2))))
+        self.assertEqual(simplify(match_number_z3([1], [Int('a'), Int('b')], 1)), simplify(Or(Int('b') == 1, Int('a') == 1)))
+        
+        s = Solver()
+        x = [ Int(f"x_{i}") for i in range(5) ]
+        s.add(match_number_z3(x, [1, 2, 3, 4, 5], 3))
+        self.assertEqual(s.check(), sat)
+        
+        s.add(x[0] == 4)
+        self.assertEqual(s.check(), sat)
+        s.add(x[1] == 1)
+        self.assertEqual(s.check(), sat)
+        s.add(x[2] == 5)
+        self.assertEqual(s.check(), sat)
+        s.add(x[3] == 2)
+        self.assertEqual(s.check(), unsat)
+        
+        
         pass
 
     def test_get_next_model(self):
