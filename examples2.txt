@@ -1,1 +1,1 @@
-{"tests": 0, "mains": 3, "paper": 1, "phone": 0, "parts": 1, "mages": 3}
+{"tanks": 1, "mains": 3, "pacer": 2, "phone": 0, "parts": 1, "mages": 3}

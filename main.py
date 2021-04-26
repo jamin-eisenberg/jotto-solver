@@ -93,32 +93,52 @@ def char_to_num(ch):
         return n
     raise ValueError("Can only convert letters between 'a' and 'z'.")
 
-def match_number_z3(guess, answer, o, next_name):
-    
+
+def match_number(guess, answer, acc):
+    if guess == []:
+        return acc
+
+    if guess[0] in answer:
+        return match_number(guess[1:], answer, acc + 1)
+    else:
+        return match_number(guess[1:], answer, acc)
+
+def match_number_z3(guess, answer, o):
+
     def match_number_z3_acc(guess, answer, o, acc):
         if guess == []:
             return o == acc
-        Next = [Int(f"next{next_name}-{i}") for i in range(len(answer) - 1)]
         return If(num_in_list_z3(guess[0], answer),
-           And(remove_z3(guess[0], answer, Next),
-               match_number_z3_acc(guess[1:], Next, o, acc + 1)),
-           match_number_z3_acc(guess[1:], answer, o, acc))
+                  match_number_z3_acc(guess[1:], answer, o, acc + 1),
+                  match_number_z3_acc(guess[1:], answer, o, acc))
 
     return match_number_z3_acc(guess, answer, o, 0)
+
+##def match_number_z3(guess, answer, o, next_name):
+##    
+##    def match_number_z3_acc(guess, answer, o, acc):
+##        if guess == []:
+##            return o == acc
+##        Next = [Int(f"next{next_name}-{i}") for i in range(len(answer) - 1)]
+##        return If(num_in_list_z3(guess[0], answer),
+##           And(remove_z3(guess[0], answer, Next),
+##               match_number_z3_acc(guess[1:], Next, o, acc + 1)),
+##           match_number_z3_acc(guess[1:], answer, o, acc))
+##
+##    return match_number_z3_acc(guess, answer, o, 0)
 
 def remove_z3(x, ls, o):
     if len(ls) <= 1:
         return o == []
-    
-    return If(x == ls[0], Or(list_equal_z3(o, ls[1:]), And(o[0] == ls[0], remove_z3(x, ls[1:], o[1:]))),
-              And(o[0] == ls[0], remove_z3(x, ls[1:], o[1:])))
 
+    return Or(And(x == ls[0], list_equal_z3(o, ls[1:])), And(o[0] == ls[0], remove_z3(x, ls[1:], o[1:])))
+    
 # derived from https://stackoverflow.com/questions/11867611/z3py-checking-all-solutions-for-equation
 def get_next_model(s):
     if s.check() == sat:
         m = s.model()
         result = m
-        # Create a new constraint the blocks the current model
+        # Create a new constraint that blocks the current model
         block = []
         for d in m:
             # create a constant from declaration
@@ -143,6 +163,8 @@ def main(allwords_fd, guesses_fd, sw_letters):
     # each letter in the secret_word must be between 'a' and 'z'
     for ch in secret_word:
         s.add(ch >= 0, ch <= 25)
+
+##    s.add(num_in_list_z3(char_to_num("g"), secret_word))
         
     # secret_word must be in the dictionary
     s.add(list_in_lol_z3(secret_word, allwords))
@@ -152,15 +174,19 @@ def main(allwords_fd, guesses_fd, sw_letters):
     next_name_count = 0
     
     for guess in guesses:
-        s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess], str(next_name_count)))
+        s.add(match_number_z3(str_to_list_nums(guess), secret_word, guesses[guess]))
 
         next_name_count += 1
 
     answers = set(())
 
+    SOLUTION_MAX = 10000
+    solution_count = 0
 
     m = get_next_model(s)
-    while m is not None:
+    while m is not None and solution_count < SOLUTION_MAX:
+        solution_count += 1
+        
         ans = [ -1 for i in range(sw_letters) ]
 
         for d in m.decls():
@@ -186,7 +212,7 @@ def main(allwords_fd, guesses_fd, sw_letters):
 
 
 if __name__ == '__main__':
-    main("allwords.txt", "example.txt", 4)
+    main("allwords.txt", "examples5.txt", 3)
 
 ##  sw_letters = int(input("Enter the number of letters in the secret word: "))
 ##    main(
