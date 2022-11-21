@@ -1,0 +1,1 @@
+{"cars": 3, "mare": 2, "tire": 2, "mire": 1, "quiz": 0}

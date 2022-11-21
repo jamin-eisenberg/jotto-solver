@@ -6,18 +6,17 @@ import sys
 class Tester(unittest.TestCase):
 
     def test_get_possible_answers(self):
-        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples.txt")), set(["dogs", "gods", "bods", "dobs", "mods"]))
-        self.assertEqual(get_possible_answers("exampleWords.txt", "examples.txt"), ["dogs"])
-        self.assertEqual(get_possible_answers("allwords_nodups.txt", "examples2.txt"), ["magic"])
-        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples3.txt")), set(["was", "saw"]))
-        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples4.txt")), set(["rats", "arts", "star", "cart", "tars"]))
-        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples5.txt")), set(["kin", "yin", "ink"]))
-        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "spesner.txt")), set(["spam", "maps", "amps", "tamp", "trek", "take", "teak", "sake"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples/examples.txt")), set(["dogs", "gods", "bods", "dobs", "mods"]))
+        self.assertEqual(get_possible_answers("examples/exampleWords.txt", "examples/examples.txt"), ["dogs"])
+        self.assertEqual(get_possible_answers("allwords_nodups.txt", "examples/examples2.txt"), ["magic"])
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples/examples3.txt")), set(["was", "saw"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples/examples4.txt")), set(["rats", "arts", "star", "cart", "tars"]))
+        self.assertEqual(set(get_possible_answers("allwords_nodups.txt", "examples/examples5.txt")), set(["kin", "yin", "ink"]))
 
-        self.assertRaises(ValueError, get_possible_answers, "exampleWords.txt", "examples6.txt")
-        self.assertRaises(ValueError, get_possible_answers, "exampleWordsBad.txt", "examples.txt")
-        self.assertRaises(FileNotFoundError, get_possible_answers, "exampleordsBad.txt", "examples.txt")
-        self.assertRaises(FileNotFoundError, get_possible_answers, "exampleWordsBad.txt", "exmples.txt")
+        self.assertRaises(ValueError, get_possible_answers, "examples/exampleWords.txt", "examples/examples6.txt")
+        self.assertRaises(ValueError, get_possible_answers, "examples/exampleWordsBad.txt", "examples/examples.txt")
+        self.assertRaises(FileNotFoundError, get_possible_answers, "examples/exampleordsBad.txt", "examples/examples.txt")
+        self.assertRaises(FileNotFoundError, get_possible_answers, "examples/exampleWordsBad.txt", "examples/exmples.txt")
 
     def test_list_equal_z3(self):
         self.assertEqual(list_equal_z3([], []), True)
@@ -128,14 +127,9 @@ class Tester(unittest.TestCase):
         self.assertEqual(s.check(), unsat)
 
     def test_get_allwords_and_guesses(self):
-        self.assertEqual(get_allwords_and_guesses("exampleWords.txt", "examples.txt"),
-                        ([[2, 14, 20, 15], [3, 14, 6, 18], [3, 14, 13, 18],
-                                 [3, 14, 18, 19], [7, 0, 21, 4], [17, 14, 3, 18],
-                                 [18, 11, 8, 15], [18, 14, 22, 18], [18, 20, 3, 18]],
-                         {'have': 0, 'slip': 1, 'coup': 1, 'dost': 3, 'rods': 3, 'dons': 3}, 4))
-        self.assertRaises(ValueError, get_allwords_and_guesses, "exampleWordsBad.txt", "examples.txt")
-        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleordsBad.txt", "examples.txt")
-        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "exampleWordsBad.txt", "exmples.txt")
+        self.assertRaises(ValueError, get_allwords_and_guesses, "examples/exampleWordsBad.txt", "examples/examples.txt")
+        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "examples/exampleordsBad.txt", "examples/examples.txt")
+        self.assertRaises(FileNotFoundError, get_allwords_and_guesses, "examples/exampleWordsBad.txt", "examples/exmples.txt")
     
     def test_binary_search(self):
         self.assertEqual(binary_search(1, []), -1)
